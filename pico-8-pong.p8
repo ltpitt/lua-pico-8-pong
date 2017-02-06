@@ -19,8 +19,24 @@ padh=4
 ballx=64
 bally=64
 ballsize=3
-ballxdir=5
-ballydir=-3
+ballxdir=0
+ballydir=0
+
+function bounceball_debug()
+    if btn(3) then
+        ballydir=1
+        ballxdir=0
+    elseif btn(2) then
+        ballydir=-1
+        ballxdir=0
+    elseif btn(1) then
+        ballydir=0
+        ballxdir=1
+    elseif btn(0) then
+        ballydir=0
+        ballxdir=-1
+    end
+end
 
 function movepaddle()
     if btn (0) then
@@ -42,7 +58,7 @@ function bounceball()
         sfx(0)
     end
     -- right
-    if ballx > 128-ballsize then
+    if ballx > 127-ballsize then
         ballxdir=-ballxdir
         sfx(0)
     end
@@ -53,10 +69,22 @@ function bounceball()
     end
 end
 
+-- bounce the ball off the paddle
+function bouncepaddle()
+    if ballx + ballsize >=padx and
+        ballx + ballsize <=padx+padw and
+        bally + ballsize >pady then
+        sfx(0)
+        ballydir=-ballydir
+    end
+end
+
 function _update()
-    movepaddle()
+    --movepaddle()
     moveball()
     bounceball()
+    bouncepaddle()
+    bounceball_debug()
 end
 
 function _draw()
