@@ -9,8 +9,9 @@ __lua__
 -- made with <3 by
 -- @pitto
 
--- score 1
+-- scores
 score1=0
+score2=0
 
 -- pad 1 variables
 pad1w=4
