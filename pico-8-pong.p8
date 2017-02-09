@@ -32,6 +32,7 @@ ballsize=0
 ballxspeed=0
 ballyspeed=0
 
+-- debug function
 function bounceball_debug()
     if btn(3) then
         ballyspeed=1
@@ -48,19 +49,31 @@ function bounceball_debug()
     end
 end
 
-function movepaddle()
-    if btn(2) and pad1y > 0 then
+-- pad 1 movement
+function movepad1()
+    if btn(2,0) and pad1y > 0 then
         pad1y-=4
-    elseif btn(3) and pad1y + pad1h < 128 then
+    elseif btn(3,0) and pad1y + pad1h < 128 then
         pad1y+=4
     end
 end
 
+-- pad 2 movement
+function movepad2()
+    if btn(2,1) and pad2y > 0 then
+        pad2y-=4
+    elseif btn(3,1) and pad2y + pad2h < 128 then
+        pad2y+=4
+    end
+end
+
+-- ball movement
 function moveball()
     ballx+=ballxspeed
     bally+=ballyspeed
 end
 
+-- bounce the ball off the walls
 function bounceball()
     -- top
     if bally < 1 + ballsize then
@@ -75,31 +88,43 @@ end
 
 -- bounce the ball off the paddle
 function bouncepaddle()
-    if (bally - ballsize >= pad1y and bally - ballsize <= pad1y + pad1h ) or (bally - ballsize >= pad2y and bally - ballsize <= pad2y + pad2h) then
-        if ballx - ballsize <= pad1w + 1 then
+    if bally - ballsize >= pad1y and bally - ballsize <= pad1y + pad1h then
+          if ballx - ballsize <= pad1w + 1 then
             ballxspeed=-ballxspeed
-        elseif ballx + ballsize  + 6 > pad2x + pad2w then
+          end
+    end
+    if (bally - ballsize >= pad2y and bally - ballsize <= pad2y + pad2h) then
+        if ballx + ballsize  + 6 > pad2x + pad2w then
             ballxspeed=-ballxspeed
         end
     end
 end
 
-function losedeadball()
-    if bally>128 then
-        sfx(3)
-        bally=24
+-- score
+function score()
+    if ballx<pad1x then
+        score2 += 1
+        ballx=64
+        bally=64
+    elseif ballx>pad2x then
+        score1 += 1
+        ballx=64
+        bally=64
     end
 end
 
+-- update the game
 function _update()
-    movepaddle()
+    movepad1()
+    movepad2()
     moveball()
     bounceball()
     bouncepaddle()
-    --losedeadball()
+    score()
     bounceball_debug()
 end
 
+-- draw the game
 function _draw()
     -- clear the screen
     rectfill(0,0, 128,128, 3)
