@@ -28,7 +28,7 @@ pad2y=64-(pad2h/2)
 -- ball variables
 ballx=64
 bally=64
-ballsize=3
+ballsize=1
 ballxspeed=0
 ballyspeed=0
 
@@ -63,11 +63,12 @@ end
 
 function bounceball()
     -- top
-    if bally < 0 then
-        score1=bally
+    if bally < 1 + ballsize then
+        ballyspeed=0   
         ballyspeed=-ballyspeed
         sfx(0)
-    elseif  bally + ballsize > 126 then
+    elseif  bally > 126 - ballsize then
+        ballyspeed=0   
         score1=bally
         ballyspeed=-ballyspeed
     end
