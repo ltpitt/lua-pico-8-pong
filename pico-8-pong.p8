@@ -28,7 +28,7 @@ pad2y=64-(pad2h/2)
 -- ball variables
 ballx=64
 bally=64
-ballsize=1
+ballsize=0
 ballxspeed=0
 ballyspeed=0
 
@@ -64,11 +64,10 @@ end
 function bounceball()
     -- top
     if bally < 1 + ballsize then
-        ballyspeed=0   
         ballyspeed=-ballyspeed
         sfx(0)
+    -- bottom
     elseif  bally > 126 - ballsize then
-        ballyspeed=0   
         score1=bally
         ballyspeed=-ballyspeed
     end
@@ -76,7 +75,13 @@ end
 
 -- bounce the ball off the paddle
 function bouncepaddle()
-    print("ceppo")
+    if (bally - ballsize >= pad1y and bally - ballsize <= pad1y + pad1h ) or (bally - ballsize >= pad2y and bally - ballsize <= pad2y + pad2h) then
+        if ballx - ballsize <= pad1w + 1 then
+            ballxspeed=-ballxspeed
+        elseif ballx + ballsize  + 6 > pad2x + pad2w then
+            ballxspeed=-ballxspeed
+        end
+    end
 end
 
 function losedeadball()
@@ -90,7 +95,7 @@ function _update()
     movepaddle()
     moveball()
     bounceball()
-    --bouncepaddle()
+    bouncepaddle()
     --losedeadball()
     bounceball_debug()
 end
@@ -104,8 +109,9 @@ function _draw()
     rectfill(pad2x,pad2y, pad2x+pad2w,pad2y+pad2h, 15)
     -- draw the ball
     circfill(ballx,bally,ballsize,15)
-    -- draw the score
+    -- draw the scores
     print(score1, 12, 6, 15)
+    print(score2, 113, 6, 15)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
