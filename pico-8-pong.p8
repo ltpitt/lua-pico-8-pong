@@ -12,25 +12,22 @@ __lua__
 -- scores
 score1=0
 score2=0
-
 -- pad 1 variables
 pad1w=4
 pad1h=24
 pad1x=0
 pad1y=64-(pad1h/2)
-
 -- pad 2 variables
 pad2w=4
 pad2h=24
 pad2x=123
 pad2y=64-(pad2h/2)
-
 -- ball variables
 ballx=64
 bally=64
 ballsize=3
-ballxspeed=rnd(3)
-ballyspeed=rnd(3)
+ballxspeed=0
+ballyspeed=0
 
 -- pad 1 movement
 function movepad1()
@@ -98,6 +95,39 @@ function bouncepaddle()
     end
 end
 
+-- newgame
+function newgame()
+    isgamestopped = true
+    if isgamestopped then
+        -- scores
+        score1=0
+        score2=0
+        -- pad 1 variables
+        pad1w=4
+        pad1h=24
+        pad1x=0
+        pad1y=64-(pad1h/2)
+        -- pad 2 variables
+        pad2w=4
+        pad2h=24
+        pad2x=123
+        pad2y=64-(pad2h/2)
+        -- ball variables
+        ballx=64
+        bally=64
+        ballsize=3
+        ballxspeed=rnd(3)
+        ballyspeed=rnd(3)
+        -- spawn ball to a random player
+        randomstart = rnd(0,2)
+        if randomstart == 1 then
+            spawnball("right")
+        else
+            spawnball("left")
+        end
+    end
+end
+
 -- updatescore
 function updatescore()
     if ballx<pad1x then
@@ -113,13 +143,16 @@ end
 
 -- update the game
 function _update()
+    -- player 1 n and m, player 2 lshift and a
+    if btn(5, 0) then
+        newgame()
+    end
     movepad1()
     movepad2()
     moveball()
     bounceball()
     bouncepaddle()
     updatescore()
-    --bounceball_debug()
 end
 
 -- draw the game
