@@ -28,6 +28,9 @@ bally=64
 ballsize=3
 ballxspeed=0
 ballyspeed=0
+-- game variables
+isgamerunning=false
+
 
 -- pad 1 movement
 function movepad1()
@@ -97,8 +100,8 @@ end
 
 -- newgame
 function newgame()
-    isgamestopped = true
-    if isgamestopped then
+    isgamerunning = true
+    if isgamerunning then
         -- scores
         score1=0
         score2=0
@@ -157,17 +160,25 @@ end
 
 -- draw the game
 function _draw()
-    -- clear the screen
-    rectfill(0,0, 128,128, 3)
-    -- draw the 1st paddle
-    rectfill(pad1x,pad1y, pad1x+pad1w,pad1y+pad1h, 15)
-    -- draw the 2nd paddle
-    rectfill(pad2x,pad2y, pad2x+pad2w,pad2y+pad2h, 15)
-    -- draw the ball
-    circfill(ballx,bally,ballsize,15)
-    -- draw the scores
-    print(score1, 12, 6, 15)
-    print(score2, 113, 6, 15)
+    if not isgamerunning then
+        rectfill(0,0, 128,128, rnd(16))
+        print("welcome to...", 12, 6, 15)
+        print("pong-ino!!!", 45, 60, 15)
+        print("press m to start", 36, 90, 2)
+        print("a pipi‚soft game", 50, 118, 15)
+    else
+        -- clear the screen
+        rectfill(0,0, 128,128, 3)
+        -- draw the 1st paddle
+        rectfill(pad1x,pad1y, pad1x+pad1w,pad1y+pad1h, 15)
+        -- draw the 2nd paddle
+        rectfill(pad2x,pad2y, pad2x+pad2w,pad2y+pad2h, 15)
+        -- draw the ball
+        circfill(ballx,bally,ballsize,15)
+        -- draw the scores
+        print(score1, 12, 6, 15)
+        print(score2, 113, 6, 15)
+    end
 end
 
 __gfx__
