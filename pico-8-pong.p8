@@ -87,13 +87,17 @@ function bouncepaddle()
     if bally + ballsize >= pad1y and bally - ballsize <= pad1y + pad1h then
           if ballx - ballsize <= pad1w + 1 then
             sfx(1)
-            ballxspeed=-(ballxspeed+0.1)
+            ballxspeed=-ballxspeed
+            ballxspeed+=ballxspeed / 10
+            ballyspeed+=ballyspeed / 10
           end
     end
     if (bally + ballsize >= pad2y and bally - ballsize <= pad2y + pad2h) then
         if ballx + ballsize  + 6 > pad2x + pad2w then
             sfx(2)
-            ballxspeed=-(ballxspeed+0.1)
+            ballxspeed=-ballxspeed
+            ballxspeed+=ballxspeed / 10
+            ballyspeed+=ballyspeed / 10
         end
     end
 end
