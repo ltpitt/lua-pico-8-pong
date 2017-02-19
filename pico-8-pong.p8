@@ -84,20 +84,22 @@ end
 
 -- bounce the ball off the paddle
 function bouncepaddle()
+    -- bounce paddle 1
     if bally + ballsize >= pad1y and bally - ballsize <= pad1y + pad1h then
           if ballx - ballsize <= pad1w + 1 then
-            sfx(1)
-            ballxspeed=-ballxspeed
-            ballxspeed+=ballxspeed / 10
-            ballyspeed+=ballyspeed / 10
+              if ballxspeed < 0 then
+                  sfx(1)
+                  ballxspeed=-(ballxspeed-0.1)
+              end
           end
     end
+    -- bounce paddle 2
     if (bally + ballsize >= pad2y and bally - ballsize <= pad2y + pad2h) then
         if ballx + ballsize  + 6 > pad2x + pad2w then
-            sfx(2)
-            ballxspeed=-ballxspeed
-            ballxspeed+=ballxspeed / 10
-            ballyspeed+=ballyspeed / 10
+            if ballxspeed > 0 then
+                sfx(2)
+                ballxspeed=-(ballxspeed+0.1)
+            end
         end
     end
 end
@@ -167,6 +169,7 @@ t = 0
 bck_color = 0
 -- draw the game
 function _draw()
+        score1 = ballxspeed
     if not isgamerunning then
       t = (t + 1) % 32
       blink_frame = (t == 0)
@@ -174,7 +177,7 @@ function _draw()
       print("welcome to...", 12, 6, 15)
       print("pong-ino!!!", 45, 60, 15)
       print("press m to start", 36, 90, 2)
-      print("a pipi‚soft game", 50, 118, 15)
+      print("a pipiâ€šsoft game", 50, 118, 15)
       if blink_frame then
             pick_color = rnd(16)
             if pick_color != 15 and pick_color != 2 then
