@@ -169,7 +169,6 @@ t = 0
 bck_color = 0
 -- draw the game
 function _draw()
-        score1 = ballxspeed
     if not isgamerunning then
       t = (t + 1) % 32
       blink_frame = (t == 0)
@@ -196,6 +195,8 @@ function _draw()
         -- draw the scores
         print(score1, 12, 6, 15)
         print(score2, 113, 6, 15)
+        -- draw the central line
+        line(64, 0, 64, 128, 15)
     end
 end
 
