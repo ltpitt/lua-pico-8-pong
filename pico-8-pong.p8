@@ -9,28 +9,39 @@ __lua__
 -- made with <3 by
 -- @pitto
 
+-- VARIABLES
+
 -- scores
 score1=0
 score2=0
+
 -- pad 1 variables
 pad1w=4
 pad1h=24
 pad1x=0
 pad1y=64-(pad1h/2)
+
 -- pad 2 variables
 pad2w=4
 pad2h=24
 pad2x=123
 pad2y=64-(pad2h/2)
+
 -- ball variables
 ballx=64
 bally=64
 ballsize=3
 ballxspeed=0
 ballyspeed=0
+
 -- game variables
 isgamerunning=false
+blink_frame = false
+t = 0
+bck_color = 0
 
+
+-- FUNCTIONS
 
 -- pad 1 movement
 function movepad1()
@@ -164,9 +175,6 @@ function _update()
     updatescore()
 end
 
-blink_frame = false
-t = 0
-bck_color = 0
 -- draw the game
 function _draw()
     if not isgamerunning then
