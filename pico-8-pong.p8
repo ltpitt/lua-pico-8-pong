@@ -75,7 +75,7 @@ function resetvariables()
    -- ball variables
    ball.x=64
    ball.y=64
-   ball.size=0
+   ball.size=3
 end
 
 -- pad 1 movement
@@ -227,7 +227,7 @@ function _draw()
         line(64, 0, 64, 128, 15)
         -- draw bonus
         --spr(fruit.sprite, fruit.x, fruit.y)
-        spr(ball.sprite, ball.x-3, ball.y-3)
+        --spr(ball.sprite, ball.x-3, ball.y-3)
     end
 end
 
