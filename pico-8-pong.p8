@@ -134,8 +134,9 @@ function bouncepaddle()
     if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
           if ball.x - ball.size <= pad1.w + 1 then
               if ball.xspeed < 0 then
-                  sfx(1)
                   ball.xspeed=-(ball.xspeed-0.1)
+                  ball.yspeed=calculateangle(pad1.y, pad2.h)
+                  sfx(1)
               end
           end
     end
@@ -143,11 +144,20 @@ function bouncepaddle()
     if (ball.y + ball.size >= pad2.y and ball.y - ball.size <= pad2.y + pad2.h) then
         if ball.x + ball.size  + 6 > pad2.x + pad2.w then
             if ball.xspeed > 0 then
-                sfx(2)
                 ball.xspeed=-(ball.xspeed+0.1)
+                ball.yspeed=calculateangle(pad2.y, pad2.h)
+                sfx(2)
             end
         end
     end
+end
+
+-- Calculate y angle depending on where the ball hits a paddle
+function calculateangle(pady, padh)
+    rl = (ball.y - pady)/padh
+    rl = rl / 2 + 0.25
+    angle = sin(rl)
+    return angle
 end
 
 -- newgame
@@ -206,7 +216,7 @@ function _draw()
           if bck_color == 1 then
               bck_color = 5
           elseif bck_color == 5 then
-              bck_color = 3    
+              bck_color = 3
           else
               bck_color = 1
           end
