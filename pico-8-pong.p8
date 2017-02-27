@@ -20,7 +20,8 @@ pad1={
   w=0,
   h=0,
   x=0,
-  y=0
+  y=0,
+  computer=true
 }
 
 -- pad 2 variables
@@ -28,7 +29,8 @@ pad2={
   w=0,
   h=0,
   x=123,
-  y=0
+  y=0,
+  computer=false
 }
 
 -- ball variables
@@ -80,10 +82,18 @@ end
 
 -- pad 1 movement
 function movepad1()
-    if btn(2,0) and pad1.y > 0 then
-        pad1.y-=4
-    elseif btn(3,0) and pad1.y + pad1.h < 128 then
-        pad1.y+=4
+    if pad1.computer == false then
+        if btn(2,0) and pad1.y > 0 then
+            pad1.y-=4
+        elseif btn(3,0) and pad1.y + pad1.h < 128 then
+            pad1.y+=4
+        end
+    else
+        if (ball.y > pad1.y + pad1.h / 2) and (pad1.y + pad1.h < 128) then
+            pad1.y+=1
+        elseif (ball.y < pad1.y + pad1.h / 2) and (pad1.y > 0) then
+            pad1.y-=1
+        end
     end
 end
 
@@ -96,7 +106,7 @@ function movepad2()
     end
 end
 
- -- spawn ball
+-- spawn ball
 function spawnball(direction)
     ball.x=64
     ball.y=64
@@ -152,7 +162,7 @@ function bouncepaddle()
     end
 end
 
--- Calculate y angle depending on where the ball hits a paddle
+-- calculate y angle depending on where the ball hits a paddle
 function calculateangle(pady, padh)
     rl = (ball.y - pady)/padh
     rl = rl / 2 + 0.25
