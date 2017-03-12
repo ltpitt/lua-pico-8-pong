@@ -91,9 +91,9 @@ function movepad(pad)
     end
     if pad.computer==false then
         if buttonup and pad.y > 0 then
-            pad.y-=4
+            pad.y-=1
         elseif buttondown and pad.y + pad.h < 128 then
-            pad.y+=4
+            pad.y+=1
         end
     else
         if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
@@ -109,11 +109,11 @@ function spawnball(direction)
     ball.x=64
     ball.y=64
     if direction=="left" then
-        ball.xspeed=rnd(4,2)
-        ball.yspeed=rnd(3,1)
+        ball.xspeed=-(rnd(2))
+        ball.yspeed=-(rnd(2))
     else
-        ball.xspeed=rnd(-4,-2)
-        ball.yspeed=rnd(-3,-1)
+        ball.xspeed=rnd(2)
+        ball.yspeed=rnd(2)
     end
 end
 
@@ -143,7 +143,7 @@ function bouncepaddle()
           if ball.x - ball.size <= pad1.w + 1 then
               if ball.xspeed < 0 then
                   ball.xspeed=-(ball.xspeed-0.1)
-                  ball.yspeed=calculateangle(pad1.y, pad2.h)
+                  ball.yspeed=calculateangle(pad1)
                   sfx(1)
               end
           end
@@ -153,7 +153,7 @@ function bouncepaddle()
         if ball.x + ball.size  + 6 > pad2.x + pad2.w then
             if ball.xspeed > 0 then
                 ball.xspeed=-(ball.xspeed+0.1)
-                ball.yspeed=calculateangle(pad2.y, pad2.h)
+                ball.yspeed=calculateangle(pad2)
                 sfx(2)
             end
         end
@@ -161,8 +161,8 @@ function bouncepaddle()
 end
 
 -- calculate y angle depending on where the ball hits a paddle
-function calculateangle(pady, padh)
-    rl=(ball.y - pady)/padh
+function calculateangle(pad)
+    rl=(ball.y - pad.y)/pad.h
     rl=rl / 2 + 0.25
     angle=sin(rl)
     return angle
@@ -175,10 +175,10 @@ function newgame()
         -- reset paddles and ball position
         resetvariables()
         -- spawn ball to a random player
-        if rnd(0,2)==1 then
-            spawnball("right")
-        else
+        if  rnd(1)>0.5 then
             spawnball("left")
+        else
+            spawnball("right")
         end
     end
 end
@@ -197,7 +197,7 @@ function updatescore()
 end
 
 -- update the game
-function _update()
+function _update60()
     -- player 1 fire: n and m
     -- player 2 fir: lshift and a
     if btn(5, 0) then
