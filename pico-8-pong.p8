@@ -96,10 +96,12 @@ function movepad(pad)
             pad.y+=1
         end
     else
-        if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
-            pad.y+=1
-        elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
-            pad.y-=1
+        if (ball.x < 64 and pad.x == 0) or (ball.x > 64 and pad.x > 64) then
+            if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
+                pad.y+=1
+            elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
+                pad.y-=1
+            end
         end
     end
 end
@@ -127,10 +129,12 @@ end
 function bounceball()
     -- top
     if ball.y < 1 + ball.size then
+        ball.y=4
         ball.yspeed=-ball.yspeed
         sfx(0)
     -- bottom
     elseif  ball.y > 126 - ball.size then
+        ball.y=123
         ball.yspeed=-ball.yspeed
         sfx(0)
     end
