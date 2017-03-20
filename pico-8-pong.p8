@@ -11,9 +11,6 @@ __lua__
 
 -- variables
 
--- scores
-winningscore=1
-
 -- pad 1 variables
 pad1={
   w=0,
@@ -55,7 +52,8 @@ fruit={
 
 -- game variables
 game={
-  state="intro"
+  state="intro",
+  winningscore=11
 }
 
 -- intro variables
@@ -186,6 +184,29 @@ end
 -- pause
 function pause()
     if game.state=="pause" then
+        -- clear the screen
+        rectfill(0,0, 128,128, 3)
+        -- draw the 1st paddle
+        rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, 15)
+        -- draw the 2nd paddle
+        rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, 15)
+        -- draw the ball
+        circfill(ball.x,ball.y,ball.size,15)
+        -- draw the scores
+        print(pad1.score, 12, 6, 15)
+        print(pad2.score, 113, 6, 15)
+        -- draw the central line
+        line(64, 0, 64, 10, 15)
+        line(64, 20, 64, 30, 15)
+        line(64, 40, 64, 50, 15)
+        line(64, 60, 64, 70, 15)
+        line(64, 80, 64, 90, 15)
+        line(64, 100, 64, 110, 15)
+        line(64, 120, 64, 130, 15)
+        -- draw the pause message
+        rectfill(49,59, 79,73, 8)
+        rectfill(50,60, 78,72, 0)
+        print("pause", 55, 64, 8)
         pauseballxspeed = ball.xspeed
         pauseballyspeed = ball.yspeed
     else
@@ -211,7 +232,7 @@ end
 function updatescore()
         if ball.x<pad1.x then
             pad2.score += 1
-            if pad2.score==winningscore then
+            if pad2.score==game.winningscore then
                 pad2.winner=true
                 game.state="over"
             else
@@ -220,7 +241,7 @@ function updatescore()
             end
         elseif ball.x>pad2.x+pad2.w then
             pad1.score += 1
-            if pad1.score==winningscore then
+            if pad1.score==game.winningscore then
                 pad1.winner=true
                 game.state="over"
             else
@@ -234,9 +255,14 @@ end
 function _update60()
     -- player 1 fire: n and m
     -- player 2 fire: lshift and a
-    if btn(5, 0) then
+    if btnp(5, 0) then
         if game.state=="intro" or game.state=="over" then
             newgame()
+        end
+        if game.state=="running" then
+            game.state="pause"
+        elseif game.state=="pause" then
+            game.state="running"
         end
     end
     if game.state=="running" then
@@ -246,6 +272,9 @@ function _update60()
         bounceball()
         bouncepaddle()
         updatescore()
+    end
+    if game.state=="pause" then
+       pause()
     end
 end
 bck_color = 1
