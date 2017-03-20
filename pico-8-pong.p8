@@ -21,6 +21,7 @@ pad1={
   x=0,
   y=0,
   score=0,
+  winner=false,
   computer=true
 }
 
@@ -31,6 +32,7 @@ pad2={
   x=123,
   y=0,
   score=0,
+  winner=false,
   computer=false
 }
 
@@ -210,6 +212,7 @@ function updatescore()
         if ball.x<pad1.x then
             pad2.score += 1
             if pad2.score==winningscore then
+                pad2.winner=true
                 game.state="over"
             else
                 spawnball("right")
@@ -218,6 +221,7 @@ function updatescore()
         elseif ball.x>pad2.x+pad2.w then
             pad1.score += 1
             if pad1.score==winningscore then
+                pad1.winner=true
                 game.state="over"
             else
                 spawnball("left")
@@ -305,6 +309,7 @@ function gameover()
       ball.x = 64
       ball.yspeeed = 0
       ball.xspeed = 0
+      ball.size = 30
       -- clear the screen
       rectfill(0,0, 128,128, 3)
       -- draw the 1st paddle
@@ -317,11 +322,17 @@ function gameover()
       print(pad1.score, 12, 6, 15)
       print(pad2.score, 113, 6, 15)
       -- draw the central line
-      line(64, 0, 64, 128, 15)
-      if ball.x < 64 then
-          print("player 1 wins", 35, 64, 14)
+      line(64, 0, 64, 10, 15)
+      line(64, 20, 64, 30, 15)
+      line(64, 40, 64, 50, 15)
+      line(64, 60, 64, 70, 15)
+      line(64, 80, 64, 90, 15)
+      line(64, 100, 64, 110, 15)
+      line(64, 120, 64, 130, 15)
+      if pad1.winner==true then
+          print("player 1 wins", 39, 64, 8)
       else
-          print("player 2 wins", 35, 64, 14)
+          print("player 2 wins", 39, 64, 8)
       end
     end
 end
