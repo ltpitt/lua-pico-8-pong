@@ -12,8 +12,7 @@ __lua__
 -- variables
 
 -- scores
-score1=0
-score2=0
+winningscore=1
 
 -- pad 1 variables
 pad1={
@@ -21,6 +20,7 @@ pad1={
   h=0,
   x=0,
   y=0,
+  score=0,
   computer=true
 }
 
@@ -30,6 +30,7 @@ pad2={
   h=0,
   x=123,
   y=0,
+  score=0,
   computer=false
 }
 
@@ -51,7 +52,11 @@ fruit={
 }
 
 -- game variables
-isgamerunning=false
+game={
+  state="intro"
+}
+
+-- intro variables
 blink_frame=false
 t=0
 bck_color=0
@@ -62,8 +67,8 @@ bck_color=0
 -- reset variables
 function resetvariables()
    -- scores
-   score1=0
-   score2=0
+   pad1.score=0
+   pad2.score=0
    -- pad 1 variables
    pad1.w=4
    pad1.h=24
@@ -82,13 +87,16 @@ end
 
 -- pad movement
 function movepad(pad)
+    -- handle p1 keypresses
     if pad.x==0 then
         buttonup=btn(2,0)
         buttondown=btn(3,0)
     else
+    -- handle p2 keypresses
         buttonup=btn(2,1)
         buttondown=btn(3,1)
     end
+    -- move pads if player is not computer
     if pad.computer==false then
         if buttonup and pad.y > 0 then
             pad.y-=1
@@ -96,6 +104,7 @@ function movepad(pad)
             pad.y+=1
         end
     else
+        -- move pads if player is computer
         if (ball.x < 64 and pad.x == 0) or (ball.x > 64 and pad.x > 64) then
             if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
                 pad.y+=1
@@ -111,11 +120,11 @@ function spawnball(direction)
     ball.x=64
     ball.y=64
     if direction=="left" then
-        ball.xspeed=-(rnd(2))
-        ball.yspeed=-(rnd(2))
+        ball.xspeed=-(rnd(3,4))
+        ball.yspeed=-(rnd(3,4))
     else
-        ball.xspeed=rnd(2)
-        ball.yspeed=rnd(2)
+        ball.xspeed=rnd(3,4)
+        ball.yspeed=rnd(3,4)
     end
 end
 
@@ -172,69 +181,97 @@ function calculateangle(pad)
     return angle
 end
 
+-- pause
+function pause()
+    if game.state=="pause" then
+        pauseballxspeed = ball.xspeed
+        pauseballyspeed = ball.yspeed
+    else
+        ball.xspeed = pauseballxspeed
+        ball.yspeed = pauseballyspeed
+    end
+end
+
 -- newgame
 function newgame()
-    isgamerunning = true
-    if isgamerunning then
-        -- reset paddles and ball position
-        resetvariables()
-        -- spawn ball to a random player
-        if  rnd(1)>0.5 then
-            spawnball("left")
-        else
-            spawnball("right")
-        end
-    end
+     -- reset paddles and ball position
+     resetvariables()
+     -- spawn ball to a random player
+     if  rnd(1)>0.5 then
+         spawnball("left")
+     else
+         spawnball("right")
+     end
+     game.state="running"
 end
 
 -- updatescore
 function updatescore()
-    if ball.x<pad1.x then
-        score2 += 1
-        spawnball("right")
-        sfx(3)
-    elseif ball.x>pad2.x+pad2.w then
-        score1 += 1
-        spawnball("left")
-        sfx(3)
-    end
+        if ball.x<pad1.x then
+            pad2.score += 1
+            if pad2.score==winningscore then
+                game.state="over"
+            else
+                spawnball("right")
+                sfx(3)
+            end
+        elseif ball.x>pad2.x+pad2.w then
+            pad1.score += 1
+            if pad1.score==winningscore then
+                game.state="over"
+            else
+                spawnball("left")
+                sfx(3)
+            end
+        end
 end
 
 -- update the game
 function _update60()
     -- player 1 fire: n and m
-    -- player 2 fir: lshift and a
+    -- player 2 fire: lshift and a
     if btn(5, 0) then
-        newgame()
+        if game.state=="intro" or game.state=="over" then
+            newgame()
+        end
     end
-    movepad(pad1)
-    movepad(pad2)
-    moveball()
-    bounceball()
-    bouncepaddle()
-    updatescore()
+    if game.state=="running" then
+        movepad(pad1)
+        movepad(pad2)
+        moveball()
+        bounceball()
+        bouncepaddle()
+        updatescore()
+    end
 end
 bck_color = 1
--- draw the game
-function _draw()
-    if not isgamerunning then
-      t = (t + 1) % 32
-      blink_frame = (t == 0)
-      rectfill(0,0, 128,128, bck_color)
-      print("welcome to...", 12, 6, 15)
-      print("pong-ino!!!", 45, 60, 15)
-      print("press m to start", 36, 90, 8)
-      print("a pipiₚsoft game", 50, 118, 15)
-      if blink_frame then
-          if bck_color == 1 then
-              bck_color = 5
-          elseif bck_color == 5 then
-              bck_color = 3
-          else
-              bck_color = 1
-          end
-      end
-    else
+
+-- intro screen
+function intro()
+    if game.state=="intro" then
+        ball.xspeed=0
+        ball.yspeed=0
+        t = (t + 1) % 32
+        blink_frame = (t == 0)
+        rectfill(0,0, 128,128, bck_color)
+        print("welcome to...", 12, 6, 15)
+        print("pong-ino!!!", 45, 60, 15)
+        print("press m to start", 36, 90, 8)
+        print("a pipiₚsoft game", 50, 118, 15)
+        if blink_frame then
+            if bck_color == 1 then
+                bck_color = 5
+            elseif bck_color == 5 then
+                bck_color = 3
+            else
+                bck_color = 1
+            end
+        end
+    end
+end
+
+function rungame()
+    if game.state=="running" then
         -- clear the screen
         rectfill(0,0, 128,128, 3)
         -- draw the 1st paddle
@@ -244,14 +281,56 @@ function _draw()
         -- draw the ball
         circfill(ball.x,ball.y,ball.size,15)
         -- draw the scores
-        print(score1, 12, 6, 15)
-        print(score2, 113, 6, 15)
+        print(pad1.score, 12, 6, 15)
+        print(pad2.score, 113, 6, 15)
         -- draw the central line
-        line(64, 0, 64, 128, 15)
+        --line(64, 0, 64, 128, 15)
+        -- draw the central line
+        line(64, 0, 64, 10, 15)
+        line(64, 20, 64, 30, 15)
+        line(64, 40, 64, 50, 15)
+        line(64, 60, 64, 70, 15)
+        line(64, 80, 64, 90, 15)
+        line(64, 100, 64, 110, 15)
+        line(64, 120, 64, 130, 15)
         -- draw bonus
         --spr(fruit.sprite, fruit.x, fruit.y)
         --spr(ball.sprite, ball.x-3, ball.y-3)
     end
+end
+
+function gameover()
+    if game.state=="over" then
+      ball.y = 64
+      ball.x = 64
+      ball.yspeeed = 0
+      ball.xspeed = 0
+      -- clear the screen
+      rectfill(0,0, 128,128, 3)
+      -- draw the 1st paddle
+      rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, 15)
+      -- draw the 2nd paddle
+      rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, 15)
+      -- draw the ball
+      circfill(ball.x,ball.y,ball.size,15)
+      -- draw the scores
+      print(pad1.score, 12, 6, 15)
+      print(pad2.score, 113, 6, 15)
+      -- draw the central line
+      line(64, 0, 64, 128, 15)
+      if ball.x < 64 then
+          print("player 1 wins", 35, 64, 14)
+      else
+          print("player 2 wins", 35, 64, 14)
+      end
+    end
+end
+
+-- draw the game
+function _draw()
+    intro()
+    rungame()
+    gameover()
 end
 
 __gfx__
