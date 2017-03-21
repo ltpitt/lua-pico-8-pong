@@ -2,12 +2,11 @@ pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
 -- pico-8-pong
+-- contact me: www.davidenastri.it
 --
 -- a pong implementation
 -- for pico-8
 --
--- made with <3 by
--- @pitto
 
 -- variables
 
@@ -53,7 +52,7 @@ fruit={
 -- game variables
 game={
   state="intro",
-  winningscore=11
+  winningscore=3
 }
 
 -- intro variables
@@ -61,8 +60,25 @@ blink_frame=false
 t=0
 bck_color=0
 
+-- helper functions
+-- print white text with dark blue outline
+function print_ol(s,_x,_y)
+  for x=-1,1 do
+    for y=-1,1 do
+      print(s,_x+x,_y+y,2)
+    end
+  end
+  print(s,_x,_y,8)
+end
 
--- functions
+-- print outline text centered
+function print_ol_c(s,_y)
+  print_ol(s,64-#s*4/2,_y)
+end
+
+
+
+-- game functions
 
 -- reset variables
 function resetvariables()
@@ -335,10 +351,9 @@ end
 function gameover()
     if game.state=="over" then
       ball.y = 64
-      ball.x = 64
+      ball.x = 640
       ball.yspeeed = 0
       ball.xspeed = 0
-      ball.size = 30
       -- clear the screen
       rectfill(0,0, 128,128, 3)
       -- draw the 1st paddle
@@ -358,10 +373,15 @@ function gameover()
       line(64, 80, 64, 90, 15)
       line(64, 100, 64, 110, 15)
       line(64, 120, 64, 130, 15)
+      -- draw the win message
+      rectfill(29,59, 96,73, 8)
+      rectfill(30,60, 95,72, 0)
       if pad1.winner==true then
-          print("player 1 wins", 39, 64, 8)
+          print_ol_c("player 1 wins!", 64)
+          --print("player 1 wins", 39, 64, 8)
       else
-          print("player 2 wins", 39, 64, 8)
+          print_ol_c("player 2 wins!", 64)
+          --print("player 2 wins", 39, 64, 8)
       end
     end
 end
