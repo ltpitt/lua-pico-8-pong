@@ -271,15 +271,16 @@ end
 function _update60()
     -- player 1 fire: n and m
     -- player 2 fire: lshift and a
-    if btnp(5, 0) then
+    is_pressed=false
+    if btnp(5, 0) and not is_pressed then
         if game.state=="intro" or game.state=="over" then
             newgame()
-        end
-        if game.state=="running" then
+        elseif game.state=="running" then
             game.state="pause"
         elseif game.state=="pause" then
             game.state="running"
         end
+        is_pressed=true
     end
     if game.state=="running" then
         movepad(pad1)
