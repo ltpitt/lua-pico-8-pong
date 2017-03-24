@@ -8,7 +8,9 @@ __lua__
 -- for pico-8
 --
 
+--
 -- variables
+--
 
 -- pad 1 variables
 pad1={
@@ -52,16 +54,21 @@ fruit={
 -- game variables
 game={
   state="intro",
-  winningscore=3
+  winningscore=3,
+  timer=0,
+  interval=300
 }
 
 -- intro variables
 blink_frame=false
 t=0
-bck_color=0
+bck_color=1
 
+--
 -- helper functions
--- print white text with dark blue outline
+--
+
+-- print text with dark outline
 function print_ol(s,_x,_y)
   for x=-1,1 do
     for y=-1,1 do
@@ -77,8 +84,9 @@ function print_ol_c(s,_y)
 end
 
 
-
+--
 -- game functions
+--
 
 -- reset variables
 function resetvariables()
@@ -121,11 +129,17 @@ function movepad(pad)
         end
     else
         -- move pads if player is computer
+        -- start moving only if ball is over the mid line
         if (ball.x < 64 and pad.x == 0) or (ball.x > 64 and pad.x > 64) then
-            if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
-                pad.y+=1
-            elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
-                pad.y-=1
+        -- move only if the ball is coming in your direction
+            if ((pad.x==0) and (ball.xspeed<0)) or ((pad.x>0) and (ball.xspeed>0)) then
+                -- go up if your pad center is lower than the ball y coordinate
+                if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
+                    pad.y+=1
+                -- go down if your pad center is lower than the ball y coordinate
+                elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
+                    pad.y-=1
+                end
             end
         end
     end
@@ -269,6 +283,8 @@ end
 
 -- update the game
 function _update60()
+    -- increase game tick
+    game.timer+=1
     -- player 1 fire: n and m
     -- player 2 fire: lshift and a
     is_pressed=false
@@ -294,9 +310,8 @@ function _update60()
        pause()
     end
 end
-bck_color = 1
 
--- intro screen
+-- show intro
 function intro()
     if game.state=="intro" then
         ball.xspeed=0
@@ -320,6 +335,7 @@ function intro()
     end
 end
 
+-- run the game
 function rungame()
     if game.state=="running" then
         -- clear the screen
@@ -349,6 +365,7 @@ function rungame()
     end
 end
 
+-- show gameover
 function gameover()
     if game.state=="over" then
       ball.y = 64
