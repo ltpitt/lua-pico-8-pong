@@ -388,8 +388,6 @@ end
 function gameover()
     if game.state=="over" then
       startmusic(24)
-      -- stop the music
-      --stopmusic()
       ball.y = 64
       ball.x = 640
       ball.yspeeed = 0
