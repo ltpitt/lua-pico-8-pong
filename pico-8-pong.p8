@@ -118,7 +118,7 @@ function resetvariables()
    -- ball variables
    ball.x=64
    ball.y=64
-   ball.size=3
+   ball.size=2
 end
 
 -- pad movement
@@ -162,11 +162,14 @@ function spawnball(direction)
     ball.x=64
     ball.y=64
     if direction=="left" then
-        ball.xspeed=-(rnd(3,4))
-        ball.yspeed=-(rnd(3,4))
+        ball.xspeed=-(rnd(3))
     else
-        ball.xspeed=rnd(3,4)
-        ball.yspeed=rnd(3,4)
+        ball.xspeed=rnd(3)
+    end
+    if  rnd(1)>0.5 then
+        ball.yspeed=rnd(3)
+    else
+        ball.yspeed=-rnd(3)
     end
 end
 
@@ -205,7 +208,7 @@ function bouncepaddle()
     end
     -- bounce paddle 2
     if (ball.y + ball.size >= pad2.y and ball.y - ball.size <= pad2.y + pad2.h) then
-        if ball.x + ball.size  + 6 > pad2.x + pad2.w then
+        if ball.x + ball.size  + 5 > pad2.x + pad2.w then
             if ball.xspeed > 0 then
                 ball.xspeed=-(ball.xspeed+0.1)
                 ball.yspeed=calculateangle(pad2)
@@ -237,14 +240,16 @@ function pause()
         -- draw the scores
         print(pad1.score, 12, 6, 15)
         print(pad2.score, 113, 6, 15)
-        -- draw the central line
-        line(64, 0, 64, 10, 15)
-        line(64, 20, 64, 30, 15)
-        line(64, 40, 64, 50, 15)
-        line(64, 60, 64, 70, 15)
-        line(64, 80, 64, 90, 15)
-        line(64, 100, 64, 110, 15)
-        line(64, 120, 64, 130, 15)
+        -- draw the central line, continous style
+        line(64, 0, 64, 128, 15)
+        -- draw the central line, zebra style
+        --line(64, 0, 64, 10, 15)
+        --line(64, 20, 64, 30, 15)
+        --line(64, 40, 64, 50, 15)
+        --line(64, 60, 64, 70, 15)
+        --line(64, 80, 64, 90, 15)
+        --line(64, 100, 64, 110, 15)
+        --line(64, 120, 64, 130, 15)
         -- draw the pause message
         rectfill(49,59, 79,73, 8)
         rectfill(50,60, 78,72, 0)
@@ -361,23 +366,30 @@ function rungame()
         rectfill(0,0, 128,128, 3)
         -- draw the 1st paddle
         rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, 15)
+        -- round pad1's edges
+        circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,3)
+        circfill(pad1.x+pad1.w,pad1.y,0,3)
         -- draw the 2nd paddle
         rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, 15)
+        -- round pad2's edges
+        circfill(pad2.x,pad2.y+pad2.h,0,3)
+        circfill(pad2.x,pad2.y,0,3)
         -- draw the ball
         circfill(ball.x,ball.y,ball.size,15)
         -- draw the scores
         print(pad1.score, 12, 6, 15)
         print(pad2.score, 113, 6, 15)
-        -- draw the central line
-        --line(64, 0, 64, 128, 15)
-        -- draw the central line
-        line(64, 0, 64, 10, 15)
-        line(64, 20, 64, 30, 15)
-        line(64, 40, 64, 50, 15)
-        line(64, 60, 64, 70, 15)
-        line(64, 80, 64, 90, 15)
-        line(64, 100, 64, 110, 15)
-        line(64, 120, 64, 130, 15)
+        -- draw the central line, continous style
+        line(64, 0, 64, 128, 15)
+        -- draw the central line, zebra style
+        --line(64, 0, 64, 10, 15)
+        --line(64, 20, 64, 30, 15)
+        --line(64, 40, 64, 50, 15)
+        --line(64, 60, 64, 70, 15)
+        --line(64, 80, 64, 90, 15)
+        --line(64, 100, 64, 110, 15)
+        --line(64, 120, 64, 130, 15)
+
         -- draw bonus
         --spr(fruit.sprite, fruit.x, fruit.y)
         --spr(ball.sprite, ball.x-3, ball.y-3)
@@ -396,8 +408,14 @@ function gameover()
       rectfill(0,0, 128,128, 3)
       -- draw the 1st paddle
       rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, 15)
+      -- round pad1's edges
+      circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,3)
+      circfill(pad1.x+pad1.w,pad1.y,0,3)
       -- draw the 2nd paddle
       rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, 15)
+      -- round pad2's edges
+      circfill(pad2.x,pad2.y+pad2.h,0,3)
+      circfill(pad2.x,pad2.y,0,3)
       -- draw the ball
       circfill(ball.x,ball.y,ball.size,15)
       -- draw the scores
@@ -856,4 +874,3 @@ __music__
 00 393b433f
 00 393c433f
 02 3a3d433f
-
