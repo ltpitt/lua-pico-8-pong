@@ -162,15 +162,17 @@ function spawnball(direction)
     ball.x=64
     ball.y=64
     if direction=="left" then
-        ball.xspeed=-(rnd(3))
+        ball.xspeed=-(rnd(1))+0.1
     else
-        ball.xspeed=rnd(3)
+        ball.xspeed=rnd(1)+0.1
     end
     if  rnd(1)>0.5 then
-        ball.yspeed=rnd(3)
+        ball.yspeed=rnd(1)
     else
-        ball.yspeed=-rnd(3)
+        ball.yspeed=-rnd(1)
     end
+    ball.xspeed=1
+    ball.yspeed=0
 end
 
 -- ball movement
@@ -198,7 +200,7 @@ end
 function bouncepaddle()
     -- bounce paddle 1
     if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
-          if ball.x - ball.size <= pad1.w + 1 then
+          if ball.x - ball.size <= pad1.x + pad1.w + -ball.xspeed then
               if ball.xspeed < 0 then
                   ball.xspeed=-(ball.xspeed-0.1)
                   ball.yspeed=calculateangle(pad1)
@@ -207,8 +209,8 @@ function bouncepaddle()
           end
     end
     -- bounce paddle 2
-    if (ball.y + ball.size >= pad2.y and ball.y - ball.size <= pad2.y + pad2.h) then
-        if ball.x + ball.size  + 5 > pad2.x + pad2.w then
+    if ball.y + ball.size >= pad2.y and ball.y - ball.size <= pad2.y + pad2.h then
+        if ball.x + ball.size + ball.xspeed >= pad2.x then
             if ball.xspeed > 0 then
                 ball.xspeed=-(ball.xspeed+0.1)
                 ball.yspeed=calculateangle(pad2)
