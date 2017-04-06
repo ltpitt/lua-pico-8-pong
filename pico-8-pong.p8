@@ -14,8 +14,8 @@ __lua__
 
 -- pad 1 variables
 pad1={
-  w=0,
-  h=0,
+  w=3,
+  h=24,
   x=0,
   y=0,
   score=0,
@@ -25,8 +25,8 @@ pad1={
 
 -- pad 2 variables
 pad2={
-  w=0,
-  h=0,
+  w=3,
+  h=24,
   x=123,
   y=0,
   score=0,
@@ -38,7 +38,7 @@ pad2={
 ball={
   x=64,
   y=64,
-  size=0,
+  size=2,
   xspeed=0,
   yspeed=0,
   sprite=0
@@ -106,19 +106,14 @@ function resetvariables()
    pad1.score=0
    pad2.score=0
    -- pad 1 variables
-   pad1.w=4
-   pad1.h=24
    pad1.x=0
    pad1.y=64-(pad1.h/2)
    -- pad 2 variables
-   pad2.w=4
-   pad2.h=24
-   pad2.x=123
+   pad2.x=124
    pad2.y=64-(pad2.h/2)
    -- ball variables
    ball.x=64
    ball.y=64
-   ball.size=2
 end
 
 -- pad movement
@@ -134,10 +129,17 @@ function movepad(pad)
     end
     -- move pads if player is not computer
     if pad.computer==false then
+    -- check if paddle goes out of the screen and fix the issue
         if buttonup and pad.y > 0 then
             pad.y-=1
-        elseif buttondown and pad.y + pad.h < 127 then
+        elseif buttonup and pad.y <= 0 then
+            pad.y=0
+        end
+    -- check if paddle goes out of the screen and fix the issue
+        if buttondown and pad.y + pad.h < 127 then
             pad.y+=1
+        elseif buttondown and pad.y + pad.h > 127 then
+            pad.y=103
         end
     else
         -- move pads if player is computer
@@ -147,10 +149,20 @@ function movepad(pad)
             if ((pad.x==0) and (ball.xspeed<0)) or ((pad.x>0) and (ball.xspeed>0)) then
                 -- go up if your pad center is lower than the ball y coordinate
                 if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
-                    pad.y+=1
+                -- check if paddle goes out of the screen and, if so fix the issue
+                    if pad.y + pad.h < 127 then
+                        pad.y+=1
+                    elseif pad.y + pad.h > 127 then
+                        pad.y=103
+                    end
                 -- go down if your pad center is lower than the ball y coordinate
                 elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
-                    pad.y-=1
+                -- check if paddle goes out of the screen and, if so fix the issue
+                    if pad.y > 0 then
+                        pad.y-=1
+                    elseif pad.y <= 0 then
+                        pad.y=0
+                    end
                 end
             end
         end
@@ -171,6 +183,9 @@ function spawnball(direction)
     else
         ball.yspeed=-(rnd(0.75)+0.75)
     end
+    -- davide
+    ball.yspeed=0
+    ball.xspeed=-1
     --pad1.score=ball.yspeed
     --pad2.score=ball.xspeed
 end
