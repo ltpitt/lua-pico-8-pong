@@ -11,6 +11,11 @@ A Pong implementation for the PICO-8 Fantasy Console, written in LUA
 If you want to test the game in your browser:  
 http://www.davidenastri.it/pong
 
+### Special Thanks for the awesome music ###
+
+Intro Music and Game Over music are thanks to Gruber's talent:  
+https://twitter.com/gruber_music
+
 ### Contribution guidelines ###
 
 * If you have any idea or suggestion contact directly the Repo Owner
