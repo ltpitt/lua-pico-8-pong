@@ -1,5 +1,5 @@
 # pico-8-pong
-A Pong implementation for the PICO-8 Fantasy Console, written in LUA
+A Pong implementation for the lovely [PICO-8 Fantasy Console](http://www.lexaloffle.com/pico-8.php "PICO-8 Fantasy Console"), written in LUA
 
 ## How to install
 * Simply clone this repo into your PICO-8 folder
