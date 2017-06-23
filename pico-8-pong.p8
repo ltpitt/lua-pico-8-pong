@@ -51,18 +51,39 @@ fruit={
   y=64
 }
 
+-- colors
+color={
+  black=0,
+  darkblue=1,
+  darkpurple=2,
+  darkgreen=3,
+  brown=4,
+  darkgrey=5,
+  grey=6,
+  white=7,
+  red=8,
+  orange=9,
+  yellow=10,
+  green=11,
+  blue=12,
+  purple=13,
+  darkpink=14,
+  pink=15
+}
+
 -- game variables
 game={
   state="intro",
   winningscore=3,
   timer=0,
-  interval=300
+  interval=300,
+  bg_color=color.darkgreen,
+  lines_color=color.white
 }
 
 -- intro variables
 blink_frame=false
 t=0
-bck_color=1
 
 --
 -- helper functions
@@ -70,24 +91,24 @@ bck_color=1
 
 -- play music
 function startmusic(n)
-    if (not music_playing) then
-        music(n) music_playing=true
-    end
+  if (not music_playing) then
+      music(n) music_playing=true
+  end
 end
 
 -- stop music
 function stopmusic()
-    music(-1, 300) music_playing=false
+  music(-1, 300) music_playing=false
 end
 
 -- print text with dark outline
 function print_ol(s,_x,_y)
   for x=-1,1 do
     for y=-1,1 do
-      print(s,_x+x,_y+y,2)
+      print(s,_x+x,_y+y,color.darkgreen)
     end
   end
-  print(s,_x,_y,8)
+  print(s,_x,_y,color.green)
 end
 
 -- print outline text centered
@@ -174,18 +195,18 @@ function spawnball(direction)
     ball.x=64
     ball.y=64
     if direction=="left" then
-        ball.xspeed=-(rnd(0.75)+0.75)
+        ball.xspeed=-(rnd(0.75)+1.5)
     else
-        ball.xspeed=rnd(0.75)+0.75
+        ball.xspeed=rnd(0.75)+1.5
     end
     if  rnd(1)>0.5 then
-        ball.yspeed=rnd(0.75)+0.75
+        ball.yspeed=rnd(0.75+0.35)
     else
-        ball.yspeed=-(rnd(0.75)+0.75)
+        ball.yspeed=-(rnd(0.75)+0.35)
     end
     -- davide
-    ball.yspeed=0
-    ball.xspeed=-1
+    --ball.yspeed=0
+    --ball.xspeed=-1
     --pad1.score=ball.yspeed
     --pad2.score=ball.xspeed
 end
@@ -337,18 +358,18 @@ function intro()
         ball.yspeed=0
         t = (t + 1) % 32
         blink_frame = (t == 0)
-        rectfill(0,0, 128,128, bck_color)
+        rectfill(0,0, 128,128, bg_color)
         print("welcome to...", 12, 6, 15)
         print("pong-ino!!!", 45, 60, 15)
         print("press m to start", 36, 90, 8)
         print("a pipiₚsoft game", 50, 118, 15)
         if blink_frame then
-            if bck_color == 1 then
-                bck_color = 5
-            elseif bck_color == 5 then
-                bck_color = 3
+            if bg_color == 1 then
+                bg_color = 5
+            elseif bg_color == 5 then
+                bg_color = 3
             else
-                bck_color = 1
+                bg_color = 1
             end
         end
     end
@@ -433,8 +454,8 @@ function gameover()
       --line(64, 100, 64, 110, 15)
       --line(64, 120, 64, 130, 15)
       -- draw the win message
-      rectfill(29,59, 96,73, 8)
-      rectfill(30,60, 95,72, 0)
+      rectfill(29,59, 96,73, 7)
+      rectfill(30,60, 95,72, 1)
       if pad1.winner==true then
           print_ol_c("player 1 wins!", 64)
           --print("player 1 wins", 39, 64, 8)
