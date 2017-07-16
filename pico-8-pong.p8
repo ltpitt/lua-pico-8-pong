@@ -12,47 +12,8 @@ __lua__
 -- variables
 --
 
--- pad 1 variables
-pad1={
-  w=3,
-  h=24,
-  x=0,
-  y=0,
-  score=0,
-  winner=false,
-  computer=true
-}
-
--- pad 2 variables
-pad2={
-  w=3,
-  h=24,
-  x=123,
-  y=0,
-  score=0,
-  winner=false,
-  computer=false
-}
-
--- ball variables
-ball={
-  x=64,
-  y=64,
-  size=2,
-  xspeed=0,
-  yspeed=0,
-  sprite=0
-}
-
--- fruit variables
-fruit={
-  sprite=0,
-  x=64,
-  y=64
-}
-
 -- colors
-color={
+colors={
   black=0,
   darkblue=1,
   darkpurple=2,
@@ -71,14 +32,56 @@ color={
   pink=15
 }
 
+-- pad 1 variables
+pad1={
+  w=3,
+  h=24,
+  x=0,
+  y=0,
+  color=15,
+  score=0,
+  winner=false,
+  computer=true
+}
+
+-- pad 2 variables
+pad2={
+  w=3,
+  h=24,
+  x=123,
+  y=0,
+  color=colors.pink,
+  score=0,
+  winner=false,
+  computer=false
+}
+
+-- ball variables
+ball={
+  x=64,
+  y=64,
+  color=colors.pink,
+  size=2,
+  xspeed=0,
+  yspeed=0,
+  sprite=0
+}
+
+-- fruit variables
+fruit={
+  sprite=0,
+  x=64,
+  y=64
+}
+
 -- game variables
 game={
   state="intro",
   winningscore=3,
   timer=0,
   interval=300,
-  bg_color=color.darkgreen,
-  lines_color=color.white
+  bg_color=colors.darkgreen,
+  lines_color=colors.pink
 }
 
 -- intro variables
@@ -105,10 +108,10 @@ end
 function print_ol(s,_x,_y)
   for x=-1,1 do
     for y=-1,1 do
-      print(s,_x+x,_y+y,color.darkgreen)
+      print(s,_x+x,_y+y,colors.darkgreen)
     end
   end
-  print(s,_x,_y,color.green)
+  print(s,_x,_y,colors.green)
 end
 
 -- print outline text centered
@@ -389,30 +392,30 @@ function drawgame()
     -- clear the screen
     rectfill(0,0, 128,128, 3)
     -- draw the 1st paddle
-    rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, 15)
+    rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, pad1.color)
     -- round pad1's edges
     circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,3)
     circfill(pad1.x+pad1.w,pad1.y,0,3)
     -- draw the 2nd paddle
-    rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, 15)
+    rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, pad2.color)
     -- round pad2's edges
     circfill(pad2.x,pad2.y+pad2.h,0,3)
     circfill(pad2.x,pad2.y,0,3)
     -- draw the ball
-    circfill(ball.x,ball.y,ball.size,15)
+    circfill(ball.x,ball.y,ball.size,ball.color)
     -- draw the scores
     print(pad1.score, 12, 6, 15)
     print(pad2.score, 113, 6, 15)
     -- draw the central line, continous style
-    line(64, 0, 64, 128, 15)
+    line(64, 0, 64, 128, colors.pink)
     -- draw the central line, zebra style
-    --line(64, 0, 64, 10, 15)
-    --line(64, 20, 64, 30, 15)
-    --line(64, 40, 64, 50, 15)
-    --line(64, 60, 64, 70, 15)
-    --line(64, 80, 64, 90, 15)
-    --line(64, 100, 64, 110, 15)
-    --line(64, 120, 64, 130, 15)
+    --line(64, 0, 64, 10, colors.pink)
+    --line(64, 20, 64, 30, colors.pink)
+    --line(64, 40, 64, 50, colors.pink)
+    --line(64, 60, 64, 70, colors.pink)
+    --line(64, 80, 64, 90, colors.pink)
+    --line(64, 100, 64, 110, colors.pink)
+    --line(64, 120, 64, 130, colors.pink)
     -- draw bonus
     --spr(fruit.sprite, fruit.x, fruit.y)
     --spr(ball.sprite, ball.x-3, ball.y-3)
@@ -429,33 +432,33 @@ function gameover()
       -- clear the screen
       rectfill(0,0, 128,128, 3)
       -- draw the 1st paddle
-      rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, 15)
+      rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, colors.pink)
       -- round pad1's edges
       circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,3)
       circfill(pad1.x+pad1.w,pad1.y,0,3)
       -- draw the 2nd paddle
-      rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, 15)
+      rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, colors.pink)
       -- round pad2's edges
       circfill(pad2.x,pad2.y+pad2.h,0,3)
       circfill(pad2.x,pad2.y,0,3)
       -- draw the ball
-      circfill(ball.x,ball.y,ball.size,15)
+      circfill(ball.x,ball.y,ball.size,colors.pink)
       -- draw the scores
-      print(pad1.score, 12, 6, 15)
-      print(pad2.score, 113, 6, 15)
+      print(pad1.score, 12, 6, colors.pink)
+      print(pad2.score, 113, 6, colors.pink)
       -- draw the central line, continous style
-      line(64, 0, 64, 128, 15)
+      line(64, 0, 64, 128, colors.pink)
       -- draw the central line, zebra style
-      --line(64, 0, 64, 10, 15)
-      --line(64, 20, 64, 30, 15)
-      --line(64, 40, 64, 50, 15)
-      --line(64, 60, 64, 70, 15)
-      --line(64, 80, 64, 90, 15)
-      --line(64, 100, 64, 110, 15)
-      --line(64, 120, 64, 130, 15)
+      --line(64, 0, 64, 10, colors.pink)
+      --line(64, 20, 64, 30, colors.pink)
+      --line(64, 40, 64, 50, colors.pink)
+      --line(64, 60, 64, 70, colors.pink)
+      --line(64, 80, 64, 90, colors.pink)
+      --line(64, 100, 64, 110, colors.pink)
+      --line(64, 120, 64, 130, colors.pink)
       -- draw the win message
-      rectfill(29,59, 96,73, 7)
-      rectfill(30,60, 95,72, 1)
+      rectfill(29,59, 96,73, colors.pink)
+      rectfill(30,60, 95,72, colors.darkblue)
       if pad1.winner==true then
           print_ol_c("player 1 wins!", 64)
           --print("player 1 wins", 39, 64, 8)
