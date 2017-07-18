@@ -73,8 +73,8 @@ ball={
 -- fruit variables
 fruit={
  sprite=0,
- x=64,
- y=63
+ x=15,
+ y=58
 }
 
 -- game variables
@@ -366,32 +366,31 @@ function intro()
   t = (t + 1) % 32
   blink_frame = (t == 0)
   rectfill(0,0, 128,128, bg_color)
-  print("pong-ino", 50, 20, colors.pink)
+  print("pong-ino", 46, 35, colors.pink)
   --print("start", 55, 55, colors.red)
-  print(player_1_option, 30, 65, colors.red)
-  print(player_2_option, 30, 75, colors.red)
-  --print("press m to start", 36, 90, colors.red)
-  --print("press m to start", 36, 90, colors.red)
+  print(player_1_option, 30, 60, colors.red)
+  print(player_2_option, 30, 70, colors.red)
+  print("press m to start", 34, 90, colors.red)
   print("a pipiₚsoft game", 50, 118, colors.pink)
-  spr(fruit.sprite, 18, fruit.y)
+  spr(fruit.sprite, fruit.x, fruit.y)
 
   if btn(2,0) then
    -- if player1 presses up we select player 1 option
-   fruit.y = 63
+   fruit.y = 58
   end
   if btn(3,0) then
    -- if player1 presses up we select player 2 option
-   fruit.y = 73
+   fruit.y = 68
   end
 
   if btnp(0,0) then
    -- if player 1 presses left
-   if fruit.y == 63 then
+   if fruit.y == 58 then
     -- and we are on player 1 option we change it to human
     player_1_option = "player 1 - human"
     pad1.computer=false
    end
-   if fruit.y == 73 then
+   if fruit.y == 68 then
    -- or, if player 2 option is selected we change it to human
     player_2_option = "player 2 - human"
     pad2.computer=false
@@ -400,13 +399,13 @@ function intro()
 
   if btnp(1,0) then
    -- if player 1 presses right
-   if fruit.y == 63 then
+   if fruit.y == 58 then
     -- and we are on player 1 option we change it to computer
     player_1_option = "player 1 - computer"
     pad1.computer=true
    end
    -- or, if player 2 option is selected we change it to computer
-   if fruit.y == 73 then
+   if fruit.y == 68 then
     player_2_option = "player 2 - computer"
     pad1.computer=true
    end
