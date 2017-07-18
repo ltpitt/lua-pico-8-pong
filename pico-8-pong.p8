@@ -12,76 +12,79 @@ __lua__
 -- variables
 --
 
+player_1_option = "player 1 - human"
+player_2_option = "player 2 - computer"
+
 -- colors
 colors={
-  black=0,
-  darkblue=1,
-  darkpurple=2,
-  darkgreen=3,
-  brown=4,
-  darkgrey=5,
-  grey=6,
-  white=7,
-  red=8,
-  orange=9,
-  yellow=10,
-  green=11,
-  blue=12,
-  purple=13,
-  darkpink=14,
-  pink=15
+ black=0,
+ darkblue=1,
+ darkpurple=2,
+ darkgreen=3,
+ brown=4,
+ darkgrey=5,
+ grey=6,
+ white=7,
+ red=8,
+ orange=9,
+ yellow=10,
+ green=11,
+ blue=12,
+ purple=13,
+ darkpink=14,
+ pink=15
 }
 
 -- pad 1 variables
 pad1={
-  w=3,
-  h=24,
-  x=0,
-  y=0,
-  color=15,
-  score=0,
-  winner=false,
-  computer=true
+ w=3,
+ h=24,
+ x=0,
+ y=0,
+ color=colors.pink,
+ score=0,
+ winner=false,
+ computer=false
 }
 
 -- pad 2 variables
 pad2={
-  w=3,
-  h=24,
-  x=123,
-  y=0,
-  color=colors.pink,
-  score=0,
-  winner=false,
-  computer=false
+ w=3,
+ h=24,
+ x=123,
+ y=0,
+ color=colors.pink,
+ score=0,
+ winner=false,
+ computer=true
 }
 
 -- ball variables
 ball={
-  x=64,
-  y=64,
-  color=colors.pink,
-  size=2,
-  xspeed=0,
-  yspeed=0,
-  sprite=0
+ x=64,
+ y=64,
+ color=colors.pink,
+ size=2,
+ xspeed=0,
+ yspeed=0,
+ sprite=0
 }
 
 -- fruit variables
 fruit={
-  sprite=0,
-  x=64,
-  y=64
+ sprite=0,
+ x=64,
+ y=63
 }
 
 -- game variables
 game={
-  state="intro",
-  winningscore=3,
-  timer=0,
-  interval=300,
-  bg_color=colors.darkgreen,
-  lines_color=colors.pink
+ state="intro",
+ winningscore=11,
+ timer=0,
+ interval=300,
+ bg_color=colors.darkgreen,
+ lines_color=colors.pink
 }
 
 -- intro variables
@@ -94,29 +97,29 @@ t=0
 
 -- play music
 function startmusic(n)
-  if (not music_playing) then
-      music(n) music_playing=true
-  end
+ if (not music_playing) then
+     music(n) music_playing=true
+ end
 end
 
 -- stop music
 function stopmusic()
-  music(-1, 300) music_playing=false
+ music(-1, 300) music_playing=false
 end
 
 -- print text with dark outline
 function print_ol(s,_x,_y)
-  for x=-1,1 do
-    for y=-1,1 do
-      print(s,_x+x,_y+y,colors.darkgreen)
-    end
-  end
-  print(s,_x,_y,colors.green)
+ for x=-1,1 do
+   for y=-1,1 do
+     print(s,_x+x,_y+y,colors.darkgreen)
+   end
+ end
+ print(s,_x,_y,colors.green)
 end
 
 -- print outline text centered
 function print_ol_c(s,_y)
-  print_ol(s,64-#s*4/2,_y)
+ print_ol(s,64-#s*4/2,_y)
 end
 
 
@@ -126,354 +129,399 @@ end
 
 -- reset variables
 function resetvariables()
-   -- scores
-   pad1.score=0
-   pad2.score=0
-   -- pad 1 variables
-   pad1.x=0
-   pad1.y=64-(pad1.h/2)
-   -- pad 2 variables
-   pad2.x=124
-   pad2.y=64-(pad2.h/2)
-   -- ball variables
-   ball.x=64
-   ball.y=64
+ -- scores
+ pad1.score=0
+ pad2.score=0
+ -- pad 1 variables
+ pad1.x=0
+ pad1.y=64-(pad1.h/2)
+ -- pad 2 variables
+ pad2.x=124
+ pad2.y=64-(pad2.h/2)
+ -- ball variables
+ ball.x=64
+ ball.y=64
 end
 
 -- pad movement
 function movepad(pad)
-    -- handle p1 keypresses
-    if pad.x==0 then
-        buttonup=btn(2,0)
-        buttondown=btn(3,0)
-    else
-    -- handle p2 keypresses
-        buttonup=btn(2,1)
-        buttondown=btn(3,1)
-    end
-    -- move pads if player is not computer
-    if pad.computer==false then
-    -- check if paddle goes out of the screen and fix the issue
-        if buttonup and pad.y > 0 then
-            pad.y-=1
-        elseif buttonup and pad.y <= 0 then
-            pad.y=0
-        end
-    -- check if paddle goes out of the screen and fix the issue
-        if buttondown and pad.y + pad.h < 127 then
-            pad.y+=1
-        elseif buttondown and pad.y + pad.h > 127 then
-            pad.y=103
-        end
-    else
-        -- move pads if player is computer
-        -- start moving only if ball is over the mid line
-        if (ball.x < 64 and pad.x == 0) or (ball.x > 64 and pad.x > 64) then
-        -- move only if the ball is coming in your direction
-            if ((pad.x==0) and (ball.xspeed<0)) or ((pad.x>0) and (ball.xspeed>0)) then
-                -- go up if your pad center is lower than the ball y coordinate
-                if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
-                -- check if paddle goes out of the screen and, if so fix the issue
-                    if pad.y + pad.h < 127 then
-                        pad.y+=1
-                    elseif pad.y + pad.h > 127 then
-                        pad.y=103
-                    end
-                -- go down if your pad center is lower than the ball y coordinate
-                elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
-                -- check if paddle goes out of the screen and, if so fix the issue
-                    if pad.y > 0 then
-                        pad.y-=1
-                    elseif pad.y <= 0 then
-                        pad.y=0
-                    end
-                end
-            end
-        end
-    end
+ -- handle p1 keypresses
+ if pad.x==0 then
+     buttonup=btn(2,0)
+     buttondown=btn(3,0)
+ else
+ -- handle p2 keypresses
+     buttonup=btn(2,1)
+     buttondown=btn(3,1)
+ end
+ -- move pads if player is not computer
+ if pad.computer==false then
+ -- check if paddle goes out of the screen and fix the issue
+     if buttonup and pad.y > 0 then
+         pad.y-=1
+     elseif buttonup and pad.y <= 0 then
+         pad.y=0
+     end
+ -- check if paddle goes out of the screen and fix the issue
+     if buttondown and pad.y + pad.h < 127 then
+         pad.y+=1
+     elseif buttondown and pad.y + pad.h > 127 then
+         pad.y=103
+     end
+ else
+  -- move pads if player is computer
+  -- start moving only if ball is over the mid line
+  if (ball.x < 64 and pad.x == 0) or (ball.x > 64 and pad.x > 64) then
+  -- move only if the ball is coming in your direction
+      if ((pad.x==0) and (ball.xspeed<0)) or ((pad.x>0) and (ball.xspeed>0)) then
+          -- go up if your pad center is lower than the ball y coordinate
+          if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
+          -- check if paddle goes out of the screen and, if so fix the issue
+              if pad.y + pad.h < 127 then
+                  pad.y+=1
+              elseif pad.y + pad.h > 127 then
+                  pad.y=103
+              end
+          -- go down if your pad center is lower than the ball y coordinate
+          elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
+          -- check if paddle goes out of the screen and, if so fix the issue
+              if pad.y > 0 then
+                  pad.y-=1
+              elseif pad.y <= 0 then
+                  pad.y=0
+              end
+          end
+      end
+  end
+ end
 end
 
 -- spawn ball
 function spawnball(direction)
-    ball.x=64
-    ball.y=64
-    if direction=="left" then
-        ball.xspeed=-(rnd(0.75)+1.5)
-    else
-        ball.xspeed=rnd(0.75)+1.5
-    end
-    if  rnd(1)>0.5 then
-        ball.yspeed=rnd(0.75+0.35)
-    else
-        ball.yspeed=-(rnd(0.75)+0.35)
-    end
-    -- davide
-    --ball.yspeed=0
-    --ball.xspeed=-1
-    --pad1.score=ball.yspeed
-    --pad2.score=ball.xspeed
+ ball.x=64
+ ball.y=64
+ if direction=="left" then
+     ball.xspeed=-(rnd(0.75)+1.5)
+ else
+     ball.xspeed=rnd(0.75)+1.5
+ end
+ if  rnd(1)>0.5 then
+     ball.yspeed=rnd(0.75+0.35)
+ else
+     ball.yspeed=-(rnd(0.75)+0.35)
+ end
+ -- davide
+ --ball.yspeed=0
+ --ball.xspeed=-1
+ --pad1.score=ball.yspeed
+ --pad2.score=ball.xspeed
 end
 
 -- ball movement
 function moveball()
-    ball.x+=ball.xspeed
-    ball.y+=ball.yspeed
+ ball.x+=ball.xspeed
+ ball.y+=ball.yspeed
 end
 
 -- bounce the ball off the walls
 function bounceball()
-    -- top
-    if ball.y < 1 + ball.size then
-        ball.y=4
-        ball.yspeed=-ball.yspeed
-        sfx(0)
-    -- bottom
-    elseif  ball.y > 126 - ball.size then
-        ball.y=123
-        ball.yspeed=-ball.yspeed
-        sfx(0)
-    end
+ -- top
+ if ball.y < 1 + ball.size then
+     ball.y=4
+     ball.yspeed=-ball.yspeed
+     sfx(0)
+ -- bottom
+ elseif  ball.y > 126 - ball.size then
+     ball.y=123
+     ball.yspeed=-ball.yspeed
+     sfx(0)
+ end
 end
 
 -- bounce the ball off the paddle
 function bouncepaddle()
-    -- bounce paddle 1
-    if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
-          if ball.x - ball.size <= pad1.x + pad1.w + -ball.xspeed then
-              if ball.xspeed < 0 then
-                  ball.xspeed=-(ball.xspeed-0.1)
-                  ball.yspeed=calculateangle(pad1)
-                  sfx(1)
-              end
-          end
-    end
-    -- bounce paddle 2
-    if ball.y + ball.size >= pad2.y and ball.y - ball.size <= pad2.y + pad2.h then
-        if ball.x + ball.size + ball.xspeed >= pad2.x then
-            if ball.xspeed > 0 then
-                ball.xspeed=-(ball.xspeed+0.1)
-                ball.yspeed=calculateangle(pad2)
-                sfx(2)
-            end
-        end
-    end
+ -- bounce paddle 1
+ if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
+       if ball.x - ball.size <= pad1.x + pad1.w + -ball.xspeed then
+           if ball.xspeed < 0 then
+               ball.xspeed=-(ball.xspeed-0.1)
+               ball.yspeed=calculateangle(pad1)
+               sfx(1)
+           end
+       end
+ end
+ -- bounce paddle 2
+ if ball.y + ball.size >= pad2.y and ball.y - ball.size <= pad2.y + pad2.h then
+     if ball.x + ball.size + ball.xspeed >= pad2.x then
+         if ball.xspeed > 0 then
+             ball.xspeed=-(ball.xspeed+0.1)
+             ball.yspeed=calculateangle(pad2)
+             sfx(2)
+         end
+     end
+ end
 end
 
 -- calculate y angle depending on where the ball hits a paddle
 function calculateangle(pad)
-    rl=(ball.y - pad.y)/pad.h
-    rl=rl / 2 + 0.25
-    angle=sin(rl)
-    return angle
+ rl=(ball.y - pad.y)/pad.h
+ rl=rl / 2 + 0.25
+ angle=sin(rl)
+ return angle
 end
 
 -- pause
 function pause()
-    if game.state=="pause" then
-        drawgame()
-        -- draw the pause message
-        rectfill(49,59, 79,73, 8)
-        rectfill(50,60, 78,72, 0)
-        print("pause", 55, 64, 8)
-        pauseballxspeed = ball.xspeed
-        pauseballyspeed = ball.yspeed
-    else
-        ball.xspeed = pauseballxspeed
-        ball.yspeed = pauseballyspeed
-    end
+ if game.state=="pause" then
+     drawgame()
+     -- draw the pause message
+     rectfill(49,59, 79,73, colors.pink)
+     rectfill(50,60, 78,72, colors.darkblue)
+     print("pause", 55, 64, colors.darkgreen)
+     pauseballxspeed = ball.xspeed
+     pauseballyspeed = ball.yspeed
+ else
+     ball.xspeed = pauseballxspeed
+     ball.yspeed = pauseballyspeed
+ end
 end
 
 -- newgame
 function newgame()
-     -- reset paddles and ball position
-     resetvariables()
-     -- spawn ball to a random player
-     if  rnd(1)>0.5 then
-         spawnball("left")
-     else
-         spawnball("right")
-     end
-     game.state="running"
+ -- reset paddles and ball position
+ resetvariables()
+ -- spawn ball to a random player
+ if  rnd(1)>0.5 then
+     spawnball("left")
+ else
+     spawnball("right")
+ end
+ game.state="running"
 end
 
 -- updatescore
 function updatescore()
-    if ball.x<pad1.x then
-        pad2.score += 1
-        if pad2.score==game.winningscore then
-            pad2.winner=true
-            game.state="over"
-        else
-            spawnball("right")
-            sfx(3)
-        end
-    elseif ball.x>pad2.x+pad2.w then
-        pad1.score += 1
-        if pad1.score==game.winningscore then
-            pad1.winner=true
-            game.state="over"
-        else
-            spawnball("left")
-            sfx(3)
-        end
-    end
+ if ball.x<pad1.x then
+     pad2.score += 1
+     if pad2.score==game.winningscore then
+         pad2.winner=true
+         game.state="over"
+     else
+         spawnball("right")
+         sfx(3)
+     end
+ elseif ball.x>pad2.x+pad2.w then
+     pad1.score += 1
+     if pad1.score==game.winningscore then
+         pad1.winner=true
+         game.state="over"
+     else
+         spawnball("left")
+         sfx(3)
+     end
+ end
 end
 
 -- update the game
 function _update60()
-    -- increase game tick
-    game.timer+=1
-    if game.timer >= 60 and not is_happening then
-        is_happening=true
-        game.timer=0
-    end
-    -- player 1 fire: n and m
-    -- player 2 fire: lshift and a
-    is_pressed=false
-    if btnp(5, 0) and not is_pressed then
-        if game.state=="intro" or game.state=="over" then
-            newgame()
-        elseif game.state=="running" then
-            game.state="pause"
-        elseif game.state=="pause" then
-            game.state="running"
-        end
-        is_pressed=true
-    end
-    if game.state=="running" then
-        movepad(pad1)
-        movepad(pad2)
-        moveball()
-        bounceball()
-        bouncepaddle()
-        updatescore()
-    end
-    if game.state=="pause" then
-       pause()
-    end
+ -- increase game tick
+ game.timer+=1
+ if game.timer >= 60 and not is_happening then
+  is_happening=true
+  game.timer=0
+ end
+ -- player 1 fire: n and m
+ -- player 2 fire: lshift and a
+ is_pressed=false
+ if btnp(5, 0) and not is_pressed then
+  if game.state=="intro" or game.state=="over" then
+      newgame()
+  elseif game.state=="running" then
+      game.state="pause"
+  elseif game.state=="pause" then
+      game.state="running"
+  end
+  is_pressed=true
+ end
+ if game.state=="running" then
+  movepad(pad1)
+  movepad(pad2)
+  moveball()
+  bounceball()
+  bouncepaddle()
+  updatescore()
+ end
+ if game.state=="pause" then
+  pause()
+ end
 end
 
 -- show intro
 function intro()
-    if game.state=="intro" then
-        startmusic(18)
-        ball.xspeed=0
-        ball.yspeed=0
-        t = (t + 1) % 32
-        blink_frame = (t == 0)
-        rectfill(0,0, 128,128, bg_color)
-        print("welcome to...", 12, 6, 15)
-        print("pong-ino!!!", 45, 60, 15)
-        print("press m to start", 36, 90, 8)
-        print("a pipiₚsoft game", 50, 118, 15)
-        if blink_frame then
-            if bg_color == 1 then
-                bg_color = 5
-            elseif bg_color == 5 then
-                bg_color = 3
-            else
-                bg_color = 1
-            end
-        end
-    end
+ if game.state=="intro" then
+
+  startmusic(18)
+  ball.xspeed=0
+  ball.yspeed=0
+  t = (t + 1) % 32
+  blink_frame = (t == 0)
+  rectfill(0,0, 128,128, bg_color)
+  print("pong-ino", 50, 20, colors.pink)
+  --print("start", 55, 55, colors.red)
+  print(player_1_option, 30, 65, colors.red)
+  print(player_2_option, 30, 75, colors.red)
+  --print("press m to start", 36, 90, colors.red)
+  --print("press m to start", 36, 90, colors.red)
+  print("a pipiₚsoft game", 50, 118, colors.pink)
+  spr(fruit.sprite, 18, fruit.y)
+
+  if btn(2,0) then
+   -- if player1 presses up we select player 1 option
+   fruit.y = 63
+  end
+  if btn(3,0) then
+   -- if player1 presses up we select player 2 option
+   fruit.y = 73
+  end
+
+  if btnp(0,0) then
+   -- if player 1 presses left
+   if fruit.y == 63 then
+    -- and we are on player 1 option we change it to human
+    player_1_option = "player 1 - human"
+    pad1.computer=false
+   end
+   if fruit.y == 73 then
+   -- or, if player 2 option is selected we change it to human
+    player_2_option = "player 2 - human"
+    pad2.computer=false
+   end
+  end
+
+  if btnp(1,0) then
+   -- if player 1 presses right
+   if fruit.y == 63 then
+    -- and we are on player 1 option we change it to computer
+    player_1_option = "player 1 - computer"
+    pad1.computer=true
+   end
+   -- or, if player 2 option is selected we change it to computer
+   if fruit.y == 73 then
+    player_2_option = "player 2 - computer"
+    pad1.computer=true
+   end
+  end
+
+  -- changing bg color for epyleptic effect
+  if blink_frame then
+   if bg_color == 1 then
+       bg_color = 5
+   elseif bg_color == 5 then
+       bg_color = 3
+   else
+       bg_color = 1
+   end
+  end
+
+ end
 end
 
 -- run the game
 function rungame()
-    if game.state=="running" then
-        -- stop the music
-        stopmusic()
-        drawgame()
-    end
+ if game.state=="running" then
+  -- stop the music
+  stopmusic()
+  drawgame()
+ end
 end
 
 -- draw the game
 function drawgame()
-    -- clear the screen
-    rectfill(0,0, 128,128, 3)
-    -- draw the 1st paddle
-    rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, pad1.color)
-    -- round pad1's edges
-    circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,3)
-    circfill(pad1.x+pad1.w,pad1.y,0,3)
-    -- draw the 2nd paddle
-    rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, pad2.color)
-    -- round pad2's edges
-    circfill(pad2.x,pad2.y+pad2.h,0,3)
-    circfill(pad2.x,pad2.y,0,3)
-    -- draw the ball
-    circfill(ball.x,ball.y,ball.size,ball.color)
-    -- draw the scores
-    print(pad1.score, 12, 6, 15)
-    print(pad2.score, 113, 6, 15)
-    -- draw the central line, continous style
-    line(64, 0, 64, 128, colors.pink)
-    -- draw the central line, zebra style
-    --line(64, 0, 64, 10, colors.pink)
-    --line(64, 20, 64, 30, colors.pink)
-    --line(64, 40, 64, 50, colors.pink)
-    --line(64, 60, 64, 70, colors.pink)
-    --line(64, 80, 64, 90, colors.pink)
-    --line(64, 100, 64, 110, colors.pink)
-    --line(64, 120, 64, 130, colors.pink)
-    -- draw bonus
-    --spr(fruit.sprite, fruit.x, fruit.y)
-    --spr(ball.sprite, ball.x-3, ball.y-3)
+ -- clear the screen
+ rectfill(0,0, 128,128, 3)
+ -- draw the 1st paddle
+ rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, pad1.color)
+ -- round pad1's edges
+ circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,3)
+ circfill(pad1.x+pad1.w,pad1.y,0,3)
+ -- draw the 2nd paddle
+ rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, pad2.color)
+ -- round pad2's edges
+ circfill(pad2.x,pad2.y+pad2.h,0,3)
+ circfill(pad2.x,pad2.y,0,3)
+ -- draw the ball
+ circfill(ball.x,ball.y,ball.size,ball.color)
+ -- draw the scores
+ print(pad1.score, 12, 6, 15)
+ print(pad2.score, 113, 6, 15)
+ -- draw the central line, continous style
+ line(64, 0, 64, 128, colors.pink)
+ -- draw the central line, zebra style
+ --line(64, 0, 64, 10, colors.pink)
+ --line(64, 20, 64, 30, colors.pink)
+ --line(64, 40, 64, 50, colors.pink)
+ --line(64, 60, 64, 70, colors.pink)
+ --line(64, 80, 64, 90, colors.pink)
+ --line(64, 100, 64, 110, colors.pink)
+ --line(64, 120, 64, 130, colors.pink)
+ -- draw bonus
+ --spr(fruit.sprite, fruit.x, fruit.y)
+ --spr(ball.sprite, ball.x-3, ball.y-3)
 end
 
 -- show gameover
 function gameover()
-    if game.state=="over" then
-      startmusic(24)
-      ball.y = 64
-      ball.x = 640
-      ball.yspeeed = 0
-      ball.xspeed = 0
-      -- clear the screen
-      rectfill(0,0, 128,128, 3)
-      -- draw the 1st paddle
-      rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, colors.pink)
-      -- round pad1's edges
-      circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,3)
-      circfill(pad1.x+pad1.w,pad1.y,0,3)
-      -- draw the 2nd paddle
-      rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, colors.pink)
-      -- round pad2's edges
-      circfill(pad2.x,pad2.y+pad2.h,0,3)
-      circfill(pad2.x,pad2.y,0,3)
-      -- draw the ball
-      circfill(ball.x,ball.y,ball.size,colors.pink)
-      -- draw the scores
-      print(pad1.score, 12, 6, colors.pink)
-      print(pad2.score, 113, 6, colors.pink)
-      -- draw the central line, continous style
-      line(64, 0, 64, 128, colors.pink)
-      -- draw the central line, zebra style
-      --line(64, 0, 64, 10, colors.pink)
-      --line(64, 20, 64, 30, colors.pink)
-      --line(64, 40, 64, 50, colors.pink)
-      --line(64, 60, 64, 70, colors.pink)
-      --line(64, 80, 64, 90, colors.pink)
-      --line(64, 100, 64, 110, colors.pink)
-      --line(64, 120, 64, 130, colors.pink)
-      -- draw the win message
-      rectfill(29,59, 96,73, colors.pink)
-      rectfill(30,60, 95,72, colors.darkblue)
-      if pad1.winner==true then
-          print_ol_c("player 1 wins!", 64)
-          --print("player 1 wins", 39, 64, 8)
-      else
-          print_ol_c("player 2 wins!", 64)
-          --print("player 2 wins", 39, 64, 8)
-      end
-    end
+ if game.state=="over" then
+  startmusic(24)
+  ball.y = 64
+  ball.x = 640
+  ball.yspeeed = 0
+  ball.xspeed = 0
+  -- clear the screen
+  rectfill(0,0, 128,128, 3)
+  -- draw the 1st paddle
+  rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, colors.pink)
+  -- round pad1's edges
+  circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,3)
+  circfill(pad1.x+pad1.w,pad1.y,0,3)
+  -- draw the 2nd paddle
+  rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, colors.pink)
+  -- round pad2's edges
+  circfill(pad2.x,pad2.y+pad2.h,0,3)
+  circfill(pad2.x,pad2.y,0,3)
+  -- draw the ball
+  circfill(ball.x,ball.y,ball.size,colors.pink)
+  -- draw the scores
+  print(pad1.score, 12, 6, colors.pink)
+  print(pad2.score, 113, 6, colors.pink)
+  -- draw the central line, continous style
+  line(64, 0, 64, 128, colors.pink)
+  -- draw the central line, zebra style
+  --line(64, 0, 64, 10, colors.pink)
+  --line(64, 20, 64, 30, colors.pink)
+  --line(64, 40, 64, 50, colors.pink)
+  --line(64, 60, 64, 70, colors.pink)
+  --line(64, 80, 64, 90, colors.pink)
+  --line(64, 100, 64, 110, colors.pink)
+  --line(64, 120, 64, 130, colors.pink)
+  -- draw the win message
+  rectfill(29,59, 96,73, colors.pink)
+  rectfill(30,60, 95,72, colors.darkblue)
+  if pad1.winner==true then
+      print_ol_c("player 1 wins!", 64)
+      --print("player 1 wins", 39, 64, 8)
+  else
+      print_ol_c("player 2 wins!", 64)
+      --print("player 2 wins", 39, 64, 8)
+  end
+ end
 end
 
 -- draw the game
 function _draw()
-    intro()
-    rungame()
-    gameover()
+ intro()
+ rungame()
+ gameover()
 end
 
 __gfx__
