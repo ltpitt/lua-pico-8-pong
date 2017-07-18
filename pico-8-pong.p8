@@ -276,7 +276,7 @@ function pause()
      drawgame()
      -- draw the pause message
      rectfill(49,59, 79,73, colors.pink)
-     rectfill(50,60, 78,72, colors.darkblue)
+     rectfill(50,60, 78,72, game.bgcolor)
      print("pause", 55, 64, colors.darkgreen)
      pauseballxspeed = ball.xspeed
      pauseballyspeed = ball.yspeed
@@ -307,7 +307,7 @@ function updatescore()
          pad2.winner=true
          game.state="over"
      else
-         spawnball("right")
+         spawnball("left")
          sfx(3)
      end
  elseif ball.x>pad2.x+pad2.w then
@@ -316,7 +316,7 @@ function updatescore()
          pad1.winner=true
          game.state="over"
      else
-         spawnball("left")
+         spawnball("right")
          sfx(3)
      end
  end
@@ -407,7 +407,7 @@ function intro()
    -- or, if player 2 option is selected we change it to computer
    if fruit.y == 68 then
     player_2_option = "player 2 - computer"
-    pad1.computer=true
+    pad2.computer=true
    end
   end
 
@@ -437,22 +437,22 @@ end
 -- draw the game
 function drawgame()
  -- clear the screen
- rectfill(0,0, 128,128, 3)
+ rectfill(0,0, 128,128, game.bg_color)
  -- draw the 1st paddle
  rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, pad1.color)
  -- round pad1's edges
- circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,3)
- circfill(pad1.x+pad1.w,pad1.y,0,3)
+ circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,game.bg_color)
+ circfill(pad1.x+pad1.w,pad1.y,0,game.bg_color)
  -- draw the 2nd paddle
  rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, pad2.color)
  -- round pad2's edges
- circfill(pad2.x,pad2.y+pad2.h,0,3)
- circfill(pad2.x,pad2.y,0,3)
+ circfill(pad2.x,pad2.y+pad2.h,0,game.bg_color)
+ circfill(pad2.x,pad2.y,0,game.bg_color)
  -- draw the ball
  circfill(ball.x,ball.y,ball.size,ball.color)
  -- draw the scores
- print(pad1.score, 12, 6, 15)
- print(pad2.score, 113, 6, 15)
+ print(pad1.score, 12, 6, colors.pink)
+ print(pad2.score, 113, 6, colors.pink)
  -- draw the central line, continous style
  line(64, 0, 64, 128, colors.pink)
  -- draw the central line, zebra style
