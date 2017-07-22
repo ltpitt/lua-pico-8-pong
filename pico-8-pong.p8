@@ -461,6 +461,8 @@ function drawgame()
  rectfill(0,0, 128,128, game.bg_color)
  -- draw the 1st paddle
  rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, pad1.color)
+ -- draw the 2nd paddle
+ rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, pad2.color)
  if game.theme == "modern" then
  -- round pad1's edges
  circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,game.bg_color)
@@ -469,8 +471,6 @@ function drawgame()
  circfill(pad2.x,pad2.y+pad2.h,0,game.bg_color)
  circfill(pad2.x,pad2.y,0,game.bg_color)
  end
- -- draw the 2nd paddle
- rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, pad2.color)
  -- draw the ball
  circfill(ball.x,ball.y,ball.size,ball.color)
  -- draw the scores
