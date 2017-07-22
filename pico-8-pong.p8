@@ -7,7 +7,7 @@ __lua__
 -- a pong implementation
 -- for pico-8
 --
- 
+
 --
 -- variables
 --
@@ -111,12 +111,19 @@ end
 
 -- print text with dark outline
 function print_ol(s,_x,_y)
+ if game.theme == "modern" then
+  outer_color = colors.darkgreen
+  inner_color = colors.green
+ elseif game.theme == "classic" then
+  outer_color = colors.darkgrey
+  inner_color = colors.grey
+ end
  for x=-1,1 do
    for y=-1,1 do
-     print(s,_x+x,_y+y,colors.darkgreen)
+     print(s,_x+x,_y+y,outer_color)
    end
  end
- print(s,_x,_y,colors.green)
+ print(s,_x,_y,inner_color)
 end
 
 -- print outline text centered
@@ -146,7 +153,7 @@ function resetvariables()
 end
 
 -- pad movement
-function movepad(pad)
+function update_pad(pad)
  -- handle p1 keypresses
  if pad.x==0 then
      buttonup=btn(2,0)
@@ -212,21 +219,14 @@ function spawnball(direction)
  else
      ball.yspeed=-(rnd(0.75)+0.35)
  end
- -- davide
- --ball.yspeed=0
- --ball.xspeed=-1
- --pad1.score=ball.yspeed
- --pad2.score=ball.xspeed
 end
 
 -- ball movement
-function moveball()
+function update_ball()
+ -- move ball
  ball.x+=ball.xspeed
  ball.y+=ball.yspeed
-end
-
--- bounce the ball off the walls
-function bounceball()
+ -- bounce the ball off the walls
  -- top
  if ball.y < 1 + ball.size then
      ball.y=4
@@ -238,10 +238,7 @@ function bounceball()
      ball.yspeed=-ball.yspeed
      sfx(0)
  end
-end
-
--- bounce the ball off the paddle
-function bouncepaddle()
+ -- bounce the ball off the paddle
  -- bounce paddle 1
  if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
        if ball.x - ball.size <= pad1.x + pad1.w + -ball.xspeed then
@@ -277,9 +274,21 @@ function pause()
  if game.state=="pause" then
      drawgame()
      -- draw the pause message
-     rectfill(49,59, 79,73, colors.pink)
-     rectfill(50,60, 78,72, game.bgcolor)
-     print("pause", 55, 64, colors.darkgreen)
+     if game.theme=="modern" then
+      box_line_color = colors.pink
+      box_color = colors.darkblue
+      box_text_color = colors.pink
+     elseif game.theme=="classic" then
+      box_line_color = colors.pink
+      box_color = game.bg_color
+      box_text_color = colors.pink
+     end
+     -- draw box line
+     rectfill(49,59, 79,73, box_line_color)
+     -- draw box color
+     rectfill(50,60, 78,72, box_color)
+     -- draw box text
+     print("pause", 55, 64, box_text_color)
      pauseballxspeed = ball.xspeed
      pauseballyspeed = ball.yspeed
  else
@@ -293,7 +302,7 @@ function newgame()
  -- reset paddles and ball position
  resetvariables()
  -- spawn ball to a random player
- if  rnd(1)>0.5 then
+ if rnd(1)>0.5 then
      spawnball("left")
  else
      spawnball("right")
@@ -301,8 +310,8 @@ function newgame()
  game.state="running"
 end
 
--- updatescore
-function updatescore()
+-- update score
+function update_score()
  if ball.x<pad1.x then
      pad2.score += 1
      if pad2.score==game.winningscore then
@@ -326,7 +335,7 @@ end
 
 -- update the game
 function _update60()
- -- increase game tick
+ -- increase game tick - test
  game.timer+=1
  if game.timer >= 60 and not is_happening then
   is_happening=true
@@ -346,12 +355,10 @@ function _update60()
   is_pressed=true
  end
  if game.state=="running" then
-  movepad(pad1)
-  movepad(pad2)
-  moveball()
-  bounceball()
-  bouncepaddle()
-  updatescore()
+  update_pad(pad1)
+  update_pad(pad2)
+  update_ball()
+  update_score()
  end
  if game.state=="pause" then
   pause()
@@ -359,9 +366,8 @@ function _update60()
 end
 
 -- show intro
-function intro()
+function draw_intro()
  if game.state=="intro" then
-
   startmusic(18)
   ball.xspeed=0
   ball.yspeed=0
@@ -376,9 +382,8 @@ function intro()
   print("press m to start", 34, 100, colors.red)
   print("a pipiₚsoft game", 50, 118, colors.pink)
   spr(fruit.sprite, fruit.x, fruit.y)
-
   if btnp(2,0) then
-   -- if player1 presses up we select player 1 option
+   -- if player1 presses up
    if fruit.y == 68 then
     fruit.y = 58
    elseif fruit.y == 78 then
@@ -386,8 +391,8 @@ function intro()
    end
   end
   if btnp(3,0) then
-   -- if player1 presses down we select player 2 option
-   if fruit.y == 58 then 
+   -- if player1 presses down
+   if fruit.y == 58 then
     fruit.y = 68
    elseif fruit.y == 68 then
     fruit.y = 78
@@ -541,7 +546,7 @@ end
 
 -- draw the game
 function _draw()
- intro()
+ draw_intro()
  rungame()
  gameover()
 end
