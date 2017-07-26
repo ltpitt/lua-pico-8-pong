@@ -156,51 +156,51 @@ end
 function update_pad(pad)
  -- handle p1 keypresses
  if pad.x==0 then
-     buttonup=btn(2,0)
-     buttondown=btn(3,0)
+  buttonup=btn(2,0)
+  buttondown=btn(3,0)
  else
  -- handle p2 keypresses
-     buttonup=btn(2,1)
-     buttondown=btn(3,1)
+  buttonup=btn(2,1)
+  buttondown=btn(3,1)
  end
  -- move pads if player is not computer
  if pad.computer==false then
  -- check if paddle goes out of the screen and fix the issue
-     if buttonup and pad.y > 0 then
-         pad.y-=1
-     elseif buttonup and pad.y <= 0 then
-         pad.y=0
-     end
+  if buttonup and pad.y > 0 then
+      pad.y-=1
+  elseif buttonup and pad.y <= 0 then
+      pad.y=0
+  end
  -- check if paddle goes out of the screen and fix the issue
-     if buttondown and pad.y + pad.h < 127 then
-         pad.y+=1
-     elseif buttondown and pad.y + pad.h > 127 then
-         pad.y=103
-     end
+  if buttondown and pad.y + pad.h < 127 then
+      pad.y+=1
+  elseif buttondown and pad.y + pad.h > 127 then
+      pad.y=103
+  end
  else
   -- move pads if player is computer
   -- start moving only if ball is over the mid line
   if (ball.x < 64 and pad.x == 0) or (ball.x > 64 and pad.x > 64) then
   -- move only if the ball is coming in your direction
-      if ((pad.x==0) and (ball.xspeed<0)) or ((pad.x>0) and (ball.xspeed>0)) then
-          -- go up if your pad center is lower than the ball y coordinate
-          if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
-          -- check if paddle goes out of the screen and, if so fix the issue
-              if pad.y + pad.h < 127 then
-                  pad.y+=1
-              elseif pad.y + pad.h > 127 then
-                  pad.y=103
-              end
-          -- go down if your pad center is lower than the ball y coordinate
-          elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
-          -- check if paddle goes out of the screen and, if so fix the issue
-              if pad.y > 0 then
-                  pad.y-=1
-              elseif pad.y <= 0 then
-                  pad.y=0
-              end
-          end
-      end
+   if ((pad.x==0) and (ball.xspeed<0)) or ((pad.x>0) and (ball.xspeed>0)) then
+    -- go up if your pad center is lower than the ball y coordinate
+    if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
+    -- check if paddle goes out of the screen and, if so fix the issue
+     if pad.y + pad.h < 127 then
+         pad.y+=1
+     elseif pad.y + pad.h > 127 then
+         pad.y=103
+     end
+    -- go down if your pad center is lower than the ball y coordinate
+    elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
+    -- check if paddle goes out of the screen and, if so fix the issue
+     if pad.y > 0 then
+         pad.y-=1
+     elseif pad.y <= 0 then
+         pad.y=0
+     end
+    end
+   end
   end
  end
 end
@@ -210,14 +210,14 @@ function spawnball(direction)
  ball.x=64
  ball.y=64
  if direction=="left" then
-     ball.xspeed=-(rnd(0.75)+1.5)
+  ball.xspeed=-(rnd(0.75)+1.5)
  else
-     ball.xspeed=rnd(0.75)+1.5
+  ball.xspeed=rnd(0.75)+1.5
  end
  if  rnd(1)>0.5 then
-     ball.yspeed=rnd(0.75+0.35)
+  ball.yspeed=rnd(0.75+0.35)
  else
-     ball.yspeed=-(rnd(0.75)+0.35)
+  ball.yspeed=-(rnd(0.75)+0.35)
  end
 end
 
@@ -229,35 +229,35 @@ function update_ball()
  -- bounce the ball off the walls
  -- top
  if ball.y < 1 + ball.size then
-     ball.y=4
-     ball.yspeed=-ball.yspeed
-     sfx(0)
+  ball.y=4
+  ball.yspeed=-ball.yspeed
+  sfx(0)
  -- bottom
  elseif  ball.y > 126 - ball.size then
-     ball.y=123
-     ball.yspeed=-ball.yspeed
-     sfx(0)
+  ball.y=123
+  ball.yspeed=-ball.yspeed
+  sfx(0)
  end
  -- bounce the ball off the paddle
  -- bounce paddle 1
  if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
-       if ball.x - ball.size <= pad1.x + pad1.w + -ball.xspeed then
-           if ball.xspeed < 0 then
-               ball.xspeed=-(ball.xspeed-0.1)
-               ball.yspeed=calculateangle(pad1)
-               sfx(1)
-           end
-       end
+  if ball.x - ball.size <= pad1.x + pad1.w + -ball.xspeed then
+   if ball.xspeed < 0 then
+    ball.xspeed=-(ball.xspeed-0.1)
+    ball.yspeed=calculateangle(pad1)
+    sfx(1)
+   end
+  end
  end
  -- bounce paddle 2
  if ball.y + ball.size >= pad2.y and ball.y - ball.size <= pad2.y + pad2.h then
-     if ball.x + ball.size + ball.xspeed >= pad2.x then
-         if ball.xspeed > 0 then
-             ball.xspeed=-(ball.xspeed+0.1)
-             ball.yspeed=calculateangle(pad2)
-             sfx(2)
-         end
-     end
+  if ball.x + ball.size + ball.xspeed >= pad2.x then
+   if ball.xspeed > 0 then
+    ball.xspeed=-(ball.xspeed+0.1)
+    ball.yspeed=calculateangle(pad2)
+    sfx(2)
+   end
+  end
  end
 end
 
@@ -272,28 +272,28 @@ end
 -- pause
 function pause()
  if game.state=="pause" then
-     drawgame()
-     -- draw the pause message
-     if game.theme=="modern" then
-      box_line_color = colors.pink
-      box_color = colors.darkblue
-      box_text_color = colors.pink
-     elseif game.theme=="classic" then
-      box_line_color = colors.pink
-      box_color = game.bg_color
-      box_text_color = colors.pink
-     end
-     -- draw box line
-     rectfill(49,59, 79,73, box_line_color)
-     -- draw box color
-     rectfill(50,60, 78,72, box_color)
-     -- draw box text
-     print("pause", 55, 64, box_text_color)
-     pauseballxspeed = ball.xspeed
-     pauseballyspeed = ball.yspeed
+  drawgame()
+  -- draw the pause message
+  if game.theme=="modern" then
+   box_line_color = colors.pink
+   box_color = colors.darkblue
+   box_text_color = colors.pink
+  elseif game.theme=="classic" then
+   box_line_color = colors.pink
+   box_color = game.bg_color
+   box_text_color = colors.pink
+  end
+  -- draw box line
+  rectfill(49,59, 79,73, box_line_color)
+  -- draw box color
+  rectfill(50,60, 78,72, box_color)
+  -- draw box text
+  print("pause", 55, 64, box_text_color)
+  pauseballxspeed = ball.xspeed
+  pauseballyspeed = ball.yspeed
  else
-     ball.xspeed = pauseballxspeed
-     ball.yspeed = pauseballyspeed
+  ball.xspeed = pauseballxspeed
+  ball.yspeed = pauseballyspeed
  end
 end
 
@@ -313,23 +313,23 @@ end
 -- update score
 function update_score()
  if ball.x<pad1.x then
-     pad2.score += 1
-     if pad2.score==game.winningscore then
-         pad2.winner=true
-         game.state="over"
-     else
-         spawnball("left")
-         sfx(3)
-     end
+  pad2.score += 1
+  if pad2.score==game.winningscore then
+      pad2.winner=true
+      game.state="over"
+  else
+      spawnball("left")
+      sfx(3)
+  end
  elseif ball.x>pad2.x+pad2.w then
-     pad1.score += 1
-     if pad1.score==game.winningscore then
-         pad1.winner=true
-         game.state="over"
-     else
-         spawnball("right")
-         sfx(3)
-     end
+  pad1.score += 1
+  if pad1.score==game.winningscore then
+      pad1.winner=true
+      game.state="over"
+  else
+      spawnball("right")
+      sfx(3)
+  end
  end
 end
 
