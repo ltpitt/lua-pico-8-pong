@@ -504,42 +504,22 @@ function gameover()
   ball.x = 640
   ball.yspeeed = 0
   ball.xspeed = 0
-  -- clear the screen
-  rectfill(0,0, 128,128, 3)
-  -- draw the 1st paddle
-  rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, colors.pink)
-  -- round pad1's edges
-  circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,3)
-  circfill(pad1.x+pad1.w,pad1.y,0,3)
-  -- draw the 2nd paddle
-  rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, colors.pink)
-  -- round pad2's edges
-  circfill(pad2.x,pad2.y+pad2.h,0,3)
-  circfill(pad2.x,pad2.y,0,3)
-  -- draw the ball
-  circfill(ball.x,ball.y,ball.size,colors.pink)
-  -- draw the scores
-  print(pad1.score, 12, 6, colors.pink)
-  print(pad2.score, 113, 6, colors.pink)
-  -- draw the central line, continous style
-  line(64, 0, 64, 128, colors.pink)
-  -- draw the central line, zebra style
-  --line(64, 0, 64, 10, colors.pink)
-  --line(64, 20, 64, 30, colors.pink)
-  --line(64, 40, 64, 50, colors.pink)
-  --line(64, 60, 64, 70, colors.pink)
-  --line(64, 80, 64, 90, colors.pink)
-  --line(64, 100, 64, 110, colors.pink)
-  --line(64, 120, 64, 130, colors.pink)
   -- draw the win message
-  rectfill(29,59, 96,73, colors.pink)
-  rectfill(30,60, 95,72, colors.darkblue)
+  if game.theme=="modern" then
+   box_line_color = colors.pink
+   box_color = colors.darkblue
+   box_text_color = colors.pink
+  elseif game.theme=="classic" then
+   box_line_color = colors.pink
+   box_color = game.bg_color
+   box_text_color = colors.pink
+  end
+  rectfill(29,59, 96,73, box_line_color)
+  rectfill(30,60, 95,72, box_color)
   if pad1.winner==true then
       print_ol_c("player 1 wins!", 64)
-      --print("player 1 wins", 39, 64, 8)
   else
       print_ol_c("player 2 wins!", 64)
-      --print("player 2 wins", 39, 64, 8)
   end
  end
 end
