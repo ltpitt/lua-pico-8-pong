@@ -469,13 +469,22 @@ function drawgame()
  -- draw the 2nd paddle
  rectfill(pad2.x,pad2.y, pad2.x+pad2.w,pad2.y+pad2.h, pad2.color)
  if game.theme == "modern" then
- -- round pad1's edges
- circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,game.bg_color)
- circfill(pad1.x+pad1.w,pad1.y,0,game.bg_color)
- -- round pad2's edges
- circfill(pad2.x,pad2.y+pad2.h,0,game.bg_color)
- circfill(pad2.x,pad2.y,0,game.bg_color)
+  -- round pad1's edges
+  circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,game.bg_color)
+  circfill(pad1.x+pad1.w,pad1.y,0,game.bg_color)
+  -- round pad2's edges
+  circfill(pad2.x,pad2.y+pad2.h,0,game.bg_color)
+  circfill(pad2.x,pad2.y,0,game.bg_color)
+ else if  game.theme == "classic" then
+  -- remove round pad1's edges
+  circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,pad1.color)
+  circfill(pad1.x+pad1.w,pad1.y,0,pad1.color)
+  -- remove round pad2's edges
+  circfill(pad2.x,pad2.y+pad2.h,0,pad2.color)
+  circfill(pad2.x,pad2.y,0,pad2.color)
  end
+end
+
  -- draw the ball
  circfill(ball.x,ball.y,ball.size,ball.color)
  -- draw the scores
