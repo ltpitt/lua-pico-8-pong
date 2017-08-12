@@ -432,7 +432,7 @@ function draw_intro()
    end
    if fruit.y == 78 then
     theme_option = "theme    - modern"
-    game.bgcolor=colors.darkgreen
+    game.bg_color=colors.darkgreen
     game.theme="modern"
    end
   end
