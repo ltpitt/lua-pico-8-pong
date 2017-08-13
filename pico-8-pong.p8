@@ -490,19 +490,23 @@ end
  -- draw the scores
  print(pad1.score, 12, 6, colors.pink)
  print(pad2.score, 113, 6, colors.pink)
- -- draw the central line, continous style
- line(64, 0, 64, 128, colors.pink)
- -- draw the central line, zebra style
- --line(64, 0, 64, 10, colors.pink)
- --line(64, 20, 64, 30, colors.pink)
- --line(64, 40, 64, 50, colors.pink)
- --line(64, 60, 64, 70, colors.pink)
- --line(64, 80, 64, 90, colors.pink)
- --line(64, 100, 64, 110, colors.pink)
- --line(64, 120, 64, 130, colors.pink)
- -- draw bonus
- --spr(fruit.sprite, fruit.x, fruit.y)
- --spr(ball.sprite, ball.x-3, ball.y-3)
+ if game.theme == "modern" then
+  -- draw the central line, continous style
+  line(64, 0, 64, 128, colors.pink)
+ else if game.theme== "classic" then
+  -- draw the central line, zebra style
+  line(64, 0, 64, 10, colors.pink)
+  line(64, 20, 64, 30, colors.pink)
+  line(64, 40, 64, 50, colors.pink)
+  line(64, 60, 64, 70, colors.pink)
+  line(64, 80, 64, 90, colors.pink)
+  line(64, 100, 64, 110, colors.pink)
+  line(64, 120, 64, 130, colors.pink)
+ end
+ end
+  -- draw bonus
+  --spr(fruit.sprite, fruit.x, fruit.y)
+  --spr(ball.sprite, ball.x-3, ball.y-3)
 end
 
 -- show gameover
