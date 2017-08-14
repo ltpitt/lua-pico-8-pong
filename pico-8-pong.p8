@@ -347,8 +347,10 @@ function _update60()
  -- player 2 fire: lshift and a
  is_pressed=false
  if btnp(5, 0) and not is_pressed then
-  if game.state=="intro" or game.state=="over" then
+  if game.state=="intro" then
       newgame()
+  elseif game.state=="over" then
+      game.state="intro"
   elseif game.state=="running" then
       game.state="pause"
   elseif game.state=="pause" then
