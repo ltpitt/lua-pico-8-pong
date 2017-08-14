@@ -64,6 +64,8 @@ pad2={
 ball={
  x=64,
  y=64,
+ w=4,
+ h=4,
  color=colors.pink,
  size=2,
  xspeed=0,
@@ -486,7 +488,12 @@ function drawgame()
 end
 
  -- draw the ball
- circfill(ball.x,ball.y,ball.size,ball.color)
+ if game.theme == "modern" then
+  circfill(ball.x,ball.y,ball.size,ball.color)
+  else if  game.theme == "classic" then
+  rectfill(ball.x,ball.y, ball.x+ball.w,ball.y+ball.h,ball.color)
+  end
+ end
  -- draw the scores
  print(pad1.score, 12, 6, colors.pink)
  print(pad2.score, 113, 6, colors.pink)
