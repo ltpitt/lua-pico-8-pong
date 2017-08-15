@@ -73,9 +73,9 @@ ball={
  sprite=0
 }
 
--- fruit variables
-fruit={
- sprite=0,
+-- intro_cursor variables
+intro_cursor ={
+ sprite=1,
  x=15,
  y=58
 }
@@ -98,6 +98,16 @@ t=0
 --
 -- helper functions
 --
+
+-- prints black bordered text
+function write(text,x,y,color)
+ for i=0,2 do
+     for j=0,2 do
+         print(text,x+i,y+j, 0)
+     end
+ end
+ print(text,x+1,y+1,color)
+end
 
 -- play music
 function startmusic(n)
@@ -386,44 +396,44 @@ function draw_intro()
   print(theme_option, 30, 80, colors.red)
   print("press m to start", 34, 100, colors.red)
   print("a pipiₚsoft game", 50, 118, colors.pink)
-  spr(fruit.sprite, fruit.x, fruit.y)
-  if t % 5 == 0 then
-  if fruit.sprite < 4 then
-  fruit.sprite += 1
+  spr(intro_cursor.sprite, intro_cursor.x, intro_cursor.y)
+  if t % 10 == 0 then
+  if intro_cursor.sprite < 4 then
+  intro_cursor.sprite += 1
   else
-  fruit.sprite = 1
+  intro_cursor.sprite = 1
   end
   end
   if btnp(2,0) then
    -- if player1 presses up
-   if fruit.y == 68 then
-    fruit.y = 58
-   elseif fruit.y == 78 then
-    fruit.y = 68
+   if intro_cursor.y == 68 then
+    intro_cursor.y = 58
+   elseif intro_cursor.y == 78 then
+    intro_cursor.y = 68
    end
   end
   if btnp(3,0) then
    -- if player1 presses down
-   if fruit.y == 58 then
-    fruit.y = 68
-   elseif fruit.y == 68 then
-    fruit.y = 78
+   if intro_cursor.y == 58 then
+    intro_cursor.y = 68
+   elseif intro_cursor.y == 68 then
+    intro_cursor.y = 78
    end
   end
 
   if btnp(0,0) then
    -- if player 1 presses left
-   if fruit.y == 58 then
+   if intro_cursor.y == 58 then
     -- and we are on player 1 option we change it to human
     player_1_option = "player 1 - human"
     pad1.computer=false
    end
-   if fruit.y == 68 then
+   if intro_cursor.y == 68 then
    -- or, if player 2 option is selected we change it to human
     player_2_option = "player 2 - human"
     pad2.computer=false
    end
-   if fruit.y == 78 then
+   if intro_cursor.y == 78 then
     theme_option = "theme    - classic"
     game.bg_color=colors.black
     game.theme="classic"
@@ -432,20 +442,31 @@ function draw_intro()
 
   if btnp(1,0) then
    -- if player 1 presses right
-   if fruit.y == 58 then
+   if intro_cursor.y == 58 then
     -- and we are on player 1 option we change it to computer
     player_1_option = "player 1 - computer"
     pad1.computer=true
    end
    -- or, if player 2 option is selected we change it to computer
-   if fruit.y == 68 then
+   if intro_cursor.y == 68 then
     player_2_option = "player 2 - computer"
     pad2.computer=true
    end
-   if fruit.y == 78 then
+   if intro_cursor.y == 78 then
     theme_option = "theme    - modern"
     game.bg_color=colors.darkgreen
     game.theme="modern"
+   end
+  end
+
+  -- changing bg color for epyleptic effect
+  if blink_frame then
+   if bg_color == 1 then
+       bg_color = 3
+   elseif bg_color == 6 then
+       bg_color = 3
+   else
+       bg_color = 3
    end
   end
 
@@ -511,7 +532,7 @@ end
  end
  end
   -- draw bonus
-  --spr(fruit.sprite, fruit.x, fruit.y)
+  --spr(intro_cursor.sprite, intro_cursor.x, intro_cursor.y)
   --spr(ball.sprite, ball.x-3, ball.y-3)
 end
 
@@ -561,10 +582,10 @@ __gfx__
 00555500005555000055550000555500005555000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00055000000550000005500000055000000550000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00575500005f65000056650000555500005555000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00555500005665000056750000556500005555000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00055000000550000005500000055000000550000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00055000000550000005500000055000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+005d7500005dd5000057d500005dd500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+005d6500005dd5000056d500005dd500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00055000000550000005500000055000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
