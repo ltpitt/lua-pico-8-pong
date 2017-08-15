@@ -350,6 +350,7 @@ function _update60()
   if game.state=="intro" then
       newgame()
   elseif game.state=="over" then
+      stopmusic()
       game.state="intro"
   elseif game.state=="running" then
       game.state="pause"
