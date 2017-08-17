@@ -73,7 +73,10 @@ ball={
 intro_cursor ={
  sprite=1,
  x=15,
- y=58
+ y=59,
+ y_1st_option=59,
+ y_2nd_option=69,
+ y_3rd_option=79
 }
 
 -- game variables
@@ -410,34 +413,34 @@ function draw_intro()
   end
   if btnp(2,0) then
    -- if player1 presses up
-   if intro_cursor.y == 68 then
-    intro_cursor.y = 58
-   elseif intro_cursor.y == 78 then
-    intro_cursor.y = 68
+   if intro_cursor.y == intro_cursor.y_2nd_option then
+    intro_cursor.y = intro_cursor.y_1st_option
+   elseif intro_cursor.y == intro_cursor.y_3rd_option then
+    intro_cursor.y = intro_cursor.y_2nd_option
    end
   end
   if btnp(3,0) then
    -- if player1 presses down
-   if intro_cursor.y == 58 then
-    intro_cursor.y = 68
-   elseif intro_cursor.y == 68 then
-    intro_cursor.y = 78
+   if intro_cursor.y == intro_cursor.y_1st_option then
+    intro_cursor.y = intro_cursor.y_2nd_option
+   elseif intro_cursor.y == intro_cursor.y_2nd_option then
+    intro_cursor.y = intro_cursor.y_3rd_option
    end
   end
 
   if btnp(0,0) then
    -- if player 1 presses left
-   if intro_cursor.y == 58 then
+   if intro_cursor.y == intro_cursor.y_1st_option then
     -- and we are on player 1 option we change it to human
     game.player_1_option = "player 1 - human"
     pad1.computer=false
    end
-   if intro_cursor.y == 68 then
+   if intro_cursor.y == intro_cursor.y_2nd_option then
    -- or, if player 2 option is selected we change it to human
     game.player_2_option = "player 2 - human"
     pad2.computer=false
    end
-   if intro_cursor.y == 78 then
+   if intro_cursor.y == intro_cursor.y_3rd_option then
     game.theme_option = "theme    - classic"
     game.bg_color=colors.black
     game.theme="classic"
@@ -446,17 +449,17 @@ function draw_intro()
 
   if btnp(1,0) then
    -- if player 1 presses right
-   if intro_cursor.y == 58 then
+   if intro_cursor.y == intro_cursor.y_1st_option then
     -- and we are on player 1 option we change it to computer
     game.player_1_option = "player 1 - computer"
     pad1.computer=true
    end
    -- or, if player 2 option is selected we change it to computer
-   if intro_cursor.y == 68 then
+   if intro_cursor.y == intro_cursor.y_2nd_option then
     game.player_2_option = "player 2 - computer"
     pad2.computer=true
    end
-   if intro_cursor.y == 78 then
+   if intro_cursor.y == intro_cursor.y_3rd_option then
     game.theme_option = "theme    - modern"
     game.bg_color=colors.darkgreen
     game.theme="modern"
@@ -488,7 +491,7 @@ end
 
 -- draw the game
 function drawgame()
- -- clear the screen
+ -- draw the background
  rectfill(0,0, 128,128, game.bg_color)
  -- draw the 1st paddle
  rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, pad1.color)
@@ -501,16 +504,7 @@ function drawgame()
   -- round pad2's edges
   circfill(pad2.x,pad2.y+pad2.h,0,game.bg_color)
   circfill(pad2.x,pad2.y,0,game.bg_color)
- else if  game.theme == "classic" then
-  -- remove round pad1's edges
-  circfill(pad1.x+pad1.w,pad1.y+pad1.h,0,pad1.color)
-  circfill(pad1.x+pad1.w,pad1.y,0,pad1.color)
-  -- remove round pad2's edges
-  circfill(pad2.x,pad2.y+pad2.h,0,pad2.color)
-  circfill(pad2.x,pad2.y,0,pad2.color)
  end
-end
-
  -- draw the ball
  if game.theme == "modern" then
   circfill(ball.x,ball.y,ball.size,ball.color)
