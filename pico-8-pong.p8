@@ -81,6 +81,7 @@ intro_cursor ={
 
 -- game variables
 game={
+ timer=0,
  state="intro",
  winning_score=11,
  timer=0,
@@ -92,10 +93,6 @@ game={
  player_2_option = "player 2 - computer",
  theme_option    = "theme    - modern"
 }
-
--- intro variables
-blink_frame=false
-t=0
 
 --
 -- helper functions
@@ -112,14 +109,14 @@ function write(text,x,y,text_color,text_outline_color)
 end
 
 -- play music
-function startmusic(n)
+function start_music(n)
  if (not music_playing) then
      music(n) music_playing=true
  end
 end
 
 -- stop music
-function stopmusic()
+function stop_music()
  music(-1, 300) music_playing=false
 end
 
@@ -151,7 +148,7 @@ end
 --
 
 -- reset variables
-function resetvariables()
+function reset_variables()
  -- scores
  pad1.score=0
  pad2.score=0
@@ -230,7 +227,7 @@ function update_pad(pad)
 end
 
 -- spawn ball
-function spawnball(direction)
+function spawn_ball(direction)
  ball.x=64
  ball.y=64
  if direction=="left" then
@@ -238,7 +235,7 @@ function spawnball(direction)
  else
   ball.xspeed=rnd(0.75)+1.5
  end
- if  rnd(1)>0.5 then
+ if rnd(1)>0.5 then
   ball.yspeed=rnd(0.75+0.35)
  else
   ball.yspeed=-(rnd(0.75)+0.35)
@@ -250,7 +247,9 @@ function update_ball()
  -- move ball
  ball.x+=ball.xspeed
  ball.y+=ball.yspeed
+ --
  -- bounce the ball off the walls
+ --
  -- top
  if ball.y < 1 + ball.size then
   ball.y=4
@@ -262,13 +261,15 @@ function update_ball()
   ball.yspeed=-ball.yspeed
   sfx(0)
  end
+ --
  -- bounce the ball off the paddle
+ --
  -- bounce paddle 1
  if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
   if ball.x - ball.size <= pad1.x + pad1.w + -ball.xspeed then
    if ball.xspeed < 0 then
     ball.xspeed=-(ball.xspeed-0.1)
-    ball.yspeed=calculateangle(pad1)
+    ball.yspeed=calculate_angle(pad1)
     sfx(1)
    end
   end
@@ -278,7 +279,7 @@ function update_ball()
   if ball.x + ball.size + ball.xspeed >= pad2.x then
    if ball.xspeed > 0 then
     ball.xspeed=-(ball.xspeed+0.1)
-    ball.yspeed=calculateangle(pad2)
+    ball.yspeed=calculate_angle(pad2)
     sfx(2)
    end
   end
@@ -286,7 +287,7 @@ function update_ball()
 end
 
 -- calculate y angle depending on where the ball hits a paddle
-function calculateangle(pad)
+function calculate_angle(pad)
  rl=(ball.y - pad.y)/pad.h
  rl=rl / 2 + 0.25
  angle=sin(rl)
@@ -313,23 +314,23 @@ function pause()
   rectfill(50,60, 78,72, box_color)
   -- draw box text
   print("pause", 55, 64, box_text_color)
-  pauseballxspeed = ball.xspeed
-  pauseballyspeed = ball.yspeed
+  pause_ball_x_speed = ball.xspeed
+  pause_ball_y_speed = ball.yspeed
  else
-  ball.xspeed = pauseballxspeed
-  ball.yspeed = pauseballyspeed
+  ball.xspeed = pause_ball_x_speed
+  ball.yspeed = pause_ball_y_speed
  end
 end
 
 -- newgame
-function newgame()
+function new_game()
  -- reset paddles and ball position
- resetvariables()
+ reset_variables()
  -- spawn ball to a random player
  if rnd(1)>0.5 then
-     spawnball("left")
+     spawn_ball("left")
  else
-     spawnball("right")
+     spawn_ball("right")
  end
  game.state="running"
 end
@@ -342,7 +343,7 @@ function update_score()
       pad2.winner=true
       game.state="over"
   else
-      spawnball("left")
+      spawn_ball("left")
       sfx(3)
   end
  elseif ball.x>pad2.x+pad2.w then
@@ -351,7 +352,7 @@ function update_score()
       pad1.winner=true
       game.state="over"
   else
-      spawnball("right")
+      spawn_ball("right")
       sfx(3)
   end
  end
@@ -370,9 +371,9 @@ function _update60()
  is_pressed=false
  if btnp(5, 0) and not is_pressed then
   if game.state=="intro" then
-      newgame()
+      new_game()
   elseif game.state=="over" then
-      stopmusic()
+      stop_music()
       game.state="intro"
   elseif game.state=="running" then
       game.state="pause"
@@ -395,11 +396,11 @@ end
 -- show intro
 function draw_intro()
  if game.state=="intro" then
-  startmusic(18)
+  start_music(18)
   ball.xspeed=0
   ball.yspeed=0
-  t = (t + 1) % 32
-  blink_frame = (t == 0)
+  game.timer = (game.timer + 1) % 32
+  blink_frame = (game.timer == 0)
   rectfill(0,0, 128,128, game.bg_color)
   write("pong-ino",46,35,colors.pink,colors.black)
   write(game.player_1_option, 30, 60, colors.red, colors.darkgrey)
@@ -414,13 +415,6 @@ function draw_intro()
   --print("press m to start", 34, 100, colors.red)
   --print("a pipiₚsoft game", 50, 118, colors.pink)
   spr(intro_cursor.sprite, intro_cursor.x, intro_cursor.y)
-  if t % 10 == 0 then
-  if intro_cursor.sprite < 4 then
-  intro_cursor.sprite += 1
-  else
-  intro_cursor.sprite = 1
-  end
-  end
   if btnp(2,0) then
    -- if player1 presses up
    if intro_cursor.y == intro_cursor.y_2nd_option then
@@ -476,25 +470,14 @@ function draw_intro()
    end
   end
 
-  -- changing bg color for epyleptic effect
-  if blink_frame then
-   if bg_color == 1 then
-       bg_color = 3
-   elseif bg_color == 6 then
-       bg_color = 3
-   else
-       bg_color = 3
-   end
-  end
-
  end
 end
 
 -- run the game
-function rungame()
+function run_game()
  if game.state=="running" then
   -- stop the music
-  stopmusic()
+  stop_music()
   drawgame()
  end
 end
@@ -552,7 +535,7 @@ end
 -- show gameover
 function gameover()
  if game.state=="over" then
-  startmusic(24)
+  start_music(24)
   ball.y = 64
   ball.x = 640
   ball.yspeeed = 0
@@ -580,7 +563,7 @@ end
 -- draw the game
 function _draw()
  draw_intro()
- rungame()
+ run_game()
  gameover()
 end
 
