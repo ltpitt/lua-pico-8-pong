@@ -177,19 +177,29 @@ function update_pad(pad)
   buttonup=btn(2,1)
   buttondown=btn(3,1)
  end
+
+ -- adjust game upper and lower bounds according to theme
+ if game.theme == "modern" then
+  game.upper_bound = 2
+  game.lower_bound = 125
+ elseif game.theme == "classic" then
+  game.upper_bound = 0
+  game.lower_bound = 127
+ end
+
  -- move pads if player is not computer
  if pad.computer==false then
  -- check if paddle goes out of the screen and fix the issue
-  if buttonup and pad.y > 0 then
+  if buttonup and pad.y > game.upper_bound then
       pad.y-=1
-  elseif buttonup and pad.y <= 0 then
-      pad.y=0
+  elseif buttonup and pad.y <= game.upper_bound then
+      pad.y=game.upper_bound
   end
  -- check if paddle goes out of the screen and fix the issue
-  if buttondown and pad.y + pad.h < 127 then
+  if buttondown and pad.y + pad.h < game.lower_bound then
       pad.y+=1
-  elseif buttondown and pad.y + pad.h > 127 then
-      pad.y=103
+  elseif buttondown and pad.y + pad.h > game.lower_bound then
+      pad.y=game.lower_bound
   end
  else
   -- move pads if player is computer
@@ -200,18 +210,18 @@ function update_pad(pad)
     -- go up if your pad center is lower than the ball y coordinate
     if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
     -- check if paddle goes out of the screen and, if so fix the issue
-     if pad.y + pad.h < 127 then
+     if pad.y + pad.h < game.lower_bound then
          pad.y+=1
-     elseif pad.y + pad.h > 127 then
-         pad.y=103
+     elseif pad.y + pad.h > game.lower_bound then
+         pad.y=game.lower_bound
      end
     -- go down if your pad center is lower than the ball y coordinate
     elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
     -- check if paddle goes out of the screen and, if so fix the issue
-     if pad.y > 0 then
+     if pad.y > game.upper_bound then
          pad.y-=1
-     elseif pad.y <= 0 then
-         pad.y=0
+     elseif pad.y <= game.upper_bound then
+         pad.y=game.upper_bound
      end
     end
    end
@@ -492,7 +502,26 @@ end
 -- draw the game
 function drawgame()
  -- draw the background
- rectfill(0,0, 128,128, game.bg_color)
+ rectfill(0,0,128,128,game.bg_color)
+ if game.theme == "modern" then
+  -- draw the central line, continous style
+  line(64, 0, 64, 128, colors.pink)
+  -- draw the wooden walls
+  line(0,0,128,0,colors.brown)
+  line(0,127,128,127,colors.brown)
+  line(0,1,128,1,colors.orange)
+  line(0,126,128,126,colors.orange)
+ else if game.theme== "classic" then
+  -- draw the central line, zebra style
+  line(64, 0, 64, 10, colors.pink)
+  line(64, 20, 64, 30, colors.pink)
+  line(64, 40, 64, 50, colors.pink)
+  line(64, 60, 64, 70, colors.pink)
+  line(64, 80, 64, 90, colors.pink)
+  line(64, 100, 64, 110, colors.pink)
+  line(64, 120, 64, 130, colors.pink)
+ end
+ end
  -- draw the 1st paddle
  rectfill(pad1.x,pad1.y, pad1.x+pad1.w,pad1.y+pad1.h, pad1.color)
  -- draw the 2nd paddle
@@ -515,20 +544,6 @@ function drawgame()
  -- draw the scores
  print(pad1.score, 12, 6, colors.pink)
  print(pad2.score, 113, 6, colors.pink)
- if game.theme == "modern" then
-  -- draw the central line, continous style
-  line(64, 0, 64, 128, colors.pink)
- else if game.theme== "classic" then
-  -- draw the central line, zebra style
-  line(64, 0, 64, 10, colors.pink)
-  line(64, 20, 64, 30, colors.pink)
-  line(64, 40, 64, 50, colors.pink)
-  line(64, 60, 64, 70, colors.pink)
-  line(64, 80, 64, 90, colors.pink)
-  line(64, 100, 64, 110, colors.pink)
-  line(64, 120, 64, 130, colors.pink)
- end
- end
   -- draw bonus
   --spr(intro_cursor.sprite, intro_cursor.x, intro_cursor.y)
   --spr(ball.sprite, ball.x-3, ball.y-3)
