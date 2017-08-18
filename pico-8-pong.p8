@@ -64,9 +64,11 @@ ball={
  h=4,
  color=colors.pink,
  size=2,
- xspeed=0,
- yspeed=0,
- sprite=0
+ x_speed=0,
+ y_speed=0,
+ sprite=0,
+ pause_x_speed=0,
+ pause_y_speed=0
 }
 
 -- intro_cursor variables
@@ -98,20 +100,10 @@ game={
 -- helper functions
 --
 
--- prints black bordered text
-function write(text,x,y,text_color,text_outline_color)
- for i=0,2 do
-     for j=0,2 do
-         print(text,x+i,y+j, text_outline_color)
-     end
- end
- print(text,x+1,y+1,text_color)
-end
-
 -- play music
 function start_music(n)
  if (not music_playing) then
-     music(n) music_playing=true
+  music(n) music_playing=true
  end
 end
 
@@ -120,15 +112,8 @@ function stop_music()
  music(-1, 300) music_playing=false
 end
 
--- print text with dark outline
-function print_ol(s,_x,_y)
- if game.theme == "modern" then
-  outer_color = colors.darkgreen
-  inner_color = colors.green
- elseif game.theme == "classic" then
-  outer_color = colors.darkgrey
-  inner_color = colors.grey
- end
+-- print text with dark outline - davide
+function write_ol(s,_x,_y,inner_color,outer_color)
  for x=-1,1 do
    for y=-1,1 do
      print(s,_x+x,_y+y,outer_color)
@@ -138,8 +123,8 @@ function print_ol(s,_x,_y)
 end
 
 -- print outline text centered
-function print_ol_c(s,_y)
- print_ol(s,64-#s*4/2,_y)
+function write_ol_c(s,_y,inner_color,outer_color)
+ write_ol(s,64-#s*4/2,_y,inner_color,outer_color)
 end
 
 
@@ -188,37 +173,37 @@ function update_pad(pad)
  if pad.computer==false then
  -- check if paddle goes out of the screen and fix the issue
   if buttonup and pad.y > game.upper_bound then
-      pad.y-=1
+   pad.y-=1
   elseif buttonup and pad.y <= game.upper_bound then
-      pad.y=game.upper_bound
+   pad.y=game.upper_bound
   end
  -- check if paddle goes out of the screen and fix the issue
   if buttondown and pad.y + pad.h < game.lower_bound then
-      pad.y+=1
+   pad.y+=1
   elseif buttondown and pad.y + pad.h > game.lower_bound then
-      pad.y=game.lower_bound
+   pad.y=game.lower_bound
   end
  else
   -- move pads if player is computer
   -- start moving only if ball is over the mid line
   if (ball.x < 64 and pad.x == 0) or (ball.x > 64 and pad.x > 64) then
   -- move only if the ball is coming in your direction
-   if ((pad.x==0) and (ball.xspeed<0)) or ((pad.x>0) and (ball.xspeed>0)) then
+   if ((pad.x==0) and (ball.x_speed<0)) or ((pad.x>0) and (ball.x_speed>0)) then
     -- go up if your pad center is lower than the ball y coordinate
     if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
     -- check if paddle goes out of the screen and, if so fix the issue
      if pad.y + pad.h < game.lower_bound then
-         pad.y+=1
+      pad.y+=1
      elseif pad.y + pad.h > game.lower_bound then
-         pad.y=game.lower_bound
+      pad.y=game.lower_bound
      end
     -- go down if your pad center is lower than the ball y coordinate
     elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
     -- check if paddle goes out of the screen and, if so fix the issue
      if pad.y > game.upper_bound then
-         pad.y-=1
+      pad.y-=1
      elseif pad.y <= game.upper_bound then
-         pad.y=game.upper_bound
+      pad.y=game.upper_bound
      end
     end
    end
@@ -231,34 +216,34 @@ function spawn_ball(direction)
  ball.x=64
  ball.y=64
  if direction=="left" then
-  ball.xspeed=-(rnd(0.75)+1.5)
+  ball.x_speed=-(rnd(0.75)+1.5)
  else
-  ball.xspeed=rnd(0.75)+1.5
+  ball.x_speed=rnd(0.75)+1.5
  end
  if rnd(1)>0.5 then
-  ball.yspeed=rnd(0.75+0.35)
+  ball.y_speed=rnd(0.75+0.35)
  else
-  ball.yspeed=-(rnd(0.75)+0.35)
+  ball.y_speed=-(rnd(0.75)+0.35)
  end
 end
 
 -- ball movement
 function update_ball()
  -- move ball
- ball.x+=ball.xspeed
- ball.y+=ball.yspeed
+ ball.x+=ball.x_speed
+ ball.y+=ball.y_speed
  --
  -- bounce the ball off the walls
  --
  -- top
  if ball.y < 1 + ball.size then
   ball.y=4
-  ball.yspeed=-ball.yspeed
+  ball.y_speed=-ball.y_speed
   sfx(0)
  -- bottom
  elseif  ball.y > 126 - ball.size then
   ball.y=123
-  ball.yspeed=-ball.yspeed
+  ball.y_speed=-ball.y_speed
   sfx(0)
  end
  --
@@ -266,20 +251,20 @@ function update_ball()
  --
  -- bounce paddle 1
  if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
-  if ball.x - ball.size <= pad1.x + pad1.w + -ball.xspeed then
-   if ball.xspeed < 0 then
-    ball.xspeed=-(ball.xspeed-0.1)
-    ball.yspeed=calculate_angle(pad1)
+  if ball.x - ball.size <= pad1.x + pad1.w + -ball.x_speed then
+   if ball.x_speed < 0 then
+    ball.x_speed=-(ball.x_speed-0.1)
+    ball.y_speed=calculate_angle(pad1)
     sfx(1)
    end
   end
  end
  -- bounce paddle 2
  if ball.y + ball.size >= pad2.y and ball.y - ball.size <= pad2.y + pad2.h then
-  if ball.x + ball.size + ball.xspeed >= pad2.x then
-   if ball.xspeed > 0 then
-    ball.xspeed=-(ball.xspeed+0.1)
-    ball.yspeed=calculate_angle(pad2)
+  if ball.x + ball.size + ball.x_speed >= pad2.x then
+   if ball.x_speed > 0 then
+    ball.x_speed=-(ball.x_speed+0.1)
+    ball.y_speed=calculate_angle(pad2)
     sfx(2)
    end
   end
@@ -297,28 +282,29 @@ end
 -- pause
 function pause()
  if game.state=="pause" then
-  drawgame()
+  draw_game()
   -- draw the pause message
+  -- customize colors according to theme
   if game.theme=="modern" then
-   box_line_color = colors.pink
-   box_color = colors.darkblue
+   box_line_color = colors.orange
+   box_inner_color = colors.brown
    box_text_color = colors.pink
   elseif game.theme=="classic" then
    box_line_color = colors.pink
-   box_color = game.bg_color
+   box_inner_color = game.bg_color
    box_text_color = colors.pink
   end
   -- draw box line
   rectfill(49,59, 79,73, box_line_color)
   -- draw box color
-  rectfill(50,60, 78,72, box_color)
+  rectfill(50,60, 78,72, box_inner_color)
   -- draw box text
   print("pause", 55, 64, box_text_color)
-  pause_ball_x_speed = ball.xspeed
-  pause_ball_y_speed = ball.yspeed
+  ball.pause_x_speed = ball.x_speed
+  ball.pause_y_speed = ball.y_speed
  else
-  ball.xspeed = pause_ball_x_speed
-  ball.yspeed = pause_ball_y_speed
+  ball.x_speed = ball.pause_x_speed
+  ball.y_speed = ball.pause_y_speed
  end
 end
 
@@ -328,9 +314,9 @@ function new_game()
  reset_variables()
  -- spawn ball to a random player
  if rnd(1)>0.5 then
-     spawn_ball("left")
+  spawn_ball("left")
  else
-     spawn_ball("right")
+  spawn_ball("right")
  end
  game.state="running"
 end
@@ -340,20 +326,20 @@ function update_score()
  if ball.x<pad1.x then
   pad2.score += 1
   if pad2.score==game.winning_score then
-      pad2.winner=true
-      game.state="over"
+   pad2.winner=true
+   game.state="over"
   else
-      spawn_ball("left")
-      sfx(3)
+   spawn_ball("left")
+   sfx(3)
   end
  elseif ball.x>pad2.x+pad2.w then
   pad1.score += 1
   if pad1.score==game.winning_score then
-      pad1.winner=true
-      game.state="over"
+   pad1.winner=true
+   game.state="over"
   else
-      spawn_ball("right")
-      sfx(3)
+   spawn_ball("right")
+   sfx(3)
   end
  end
 end
@@ -371,14 +357,14 @@ function _update60()
  is_pressed=false
  if btnp(5, 0) and not is_pressed then
   if game.state=="intro" then
-      new_game()
+   new_game()
   elseif game.state=="over" then
-      stop_music()
-      game.state="intro"
+   stop_music()
+   game.state="intro"
   elseif game.state=="running" then
-      game.state="pause"
+   game.state="pause"
   elseif game.state=="pause" then
-      game.state="running"
+   game.state="running"
   end
   is_pressed=true
  end
@@ -397,17 +383,17 @@ end
 function draw_intro()
  if game.state=="intro" then
   start_music(18)
-  ball.xspeed=0
-  ball.yspeed=0
+  ball.x_speed=0
+  ball.y_speed=0
   game.timer = (game.timer + 1) % 32
   blink_frame = (game.timer == 0)
   rectfill(0,0, 128,128, game.bg_color)
-  write("pong-ino",46,35,colors.pink,colors.black)
-  write(game.player_1_option, 30, 60, colors.red, colors.darkgrey)
-  write(game.player_2_option, 30, 70, colors.red, colors.darkgrey)
-  write(game.theme_option, 30, 80, colors.red, colors.darkgrey)
-  write("press m to start", 34, 100, colors.red, colors.darkgrey)
-  write("a pipiₚsoft game", 50, 118, colors.pink, colors.black)
+  write_ol("pong-ino",46,35,colors.pink,colors.black)
+  write_ol(game.player_1_option, 30, 60, colors.red, colors.darkgrey)
+  write_ol(game.player_2_option, 30, 70, colors.red, colors.darkgrey)
+  write_ol(game.theme_option, 30, 80, colors.red, colors.darkgrey)
+  write_ol("press m to start", 34, 100, colors.red, colors.darkgrey)
+  write_ol("a pipiₚsoft game", 50, 118, colors.pink, colors.black)
   --print("pong-ino", 46, 35, colors.pink)
   --print(game.player_1_option, 30, 60, colors.red)
   --print(game.player_2_option, 30, 70, colors.red)
@@ -469,7 +455,6 @@ function draw_intro()
     game.theme="modern"
    end
   end
-
  end
 end
 
@@ -478,12 +463,12 @@ function run_game()
  if game.state=="running" then
   -- stop the music
   stop_music()
-  drawgame()
+  draw_game()
  end
 end
 
 -- draw the game
-function drawgame()
+function draw_game()
  -- draw the background
  rectfill(0,0,128,128,game.bg_color)
  if game.theme == "modern" then
@@ -539,23 +524,26 @@ function gameover()
   ball.y = 64
   ball.x = 640
   ball.yspeeed = 0
-  ball.xspeed = 0
-  -- draw the win message
+  ball.x_speed = 0
+  -- customize colors according to theme
   if game.theme=="modern" then
-   box_line_color = colors.pink
-   box_color = colors.darkblue
-   box_text_color = colors.pink
+   box_line_color = colors.orange
+   box_inner_color = colors.brown
+   box_text_outer_color = colors.darkgreen
+   box_text_inner_color = colors.green
   elseif game.theme=="classic" then
    box_line_color = colors.pink
-   box_color = game.bg_color
-   box_text_color = colors.pink
+   box_inner_color = game.bg_color
+   box_text_outer_color = colors.red
+   box_text_inner_color = colors.pink
   end
+  -- draw the win message
   rectfill(29,59, 96,73, box_line_color)
-  rectfill(30,60, 95,72, box_color)
+  rectfill(30,60, 95,72, box_inner_color)
   if pad1.winner==true then
-      print_ol_c("player 1 wins!", 64)
+   write_ol_c("player 1 wins!",64,box_text_inner_color,box_text_outer_color)
   else
-      print_ol_c("player 2 wins!", 64)
+   write_ol_c("player 2 wins!",64,box_text_inner_color,box_text_outer_color)
   end
  end
 end
