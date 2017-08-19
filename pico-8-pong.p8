@@ -38,6 +38,7 @@ pad1={
  h=24,
  x=0,
  y=0,
+ speed=1,
  color=colors.pink,
  score=0,
  winner=false,
@@ -50,6 +51,7 @@ pad2={
  h=24,
  x=123,
  y=0,
+ speed=1,
  color=colors.pink,
  score=0,
  winner=false,
@@ -127,7 +129,6 @@ function write_ol_c(s,_y,inner_color,outer_color)
  write_ol(s,64-#s*4/2,_y,inner_color,outer_color)
 end
 
-
 -- print text centered
 function write_c(s,_y,inner_color)
  print(s,64-#s*4/2,_y,inner_color)
@@ -153,69 +154,6 @@ function reset_variables()
  ball.y=64
 end
 
--- pad movement
-function update_pad(pad)
- -- handle p1 keypresses
- if pad.x==0 then
-  buttonup=btn(2,0)
-  buttondown=btn(3,0)
- else
- -- handle p2 keypresses
-  buttonup=btn(2,1)
-  buttondown=btn(3,1)
- end
-
- -- adjust game upper and lower bounds according to theme
- if game.theme == "modern" then
-  game.upper_bound = 2
-  game.lower_bound = 125
- elseif game.theme == "classic" then
-  game.upper_bound = 0
-  game.lower_bound = 127
- end
-
- -- move pads if player is not computer
- if pad.computer==false then
- -- check if paddle goes out of the screen and fix the issue
-  if buttonup and pad.y > game.upper_bound then
-   pad.y-=1
-  elseif buttonup and pad.y <= game.upper_bound then
-   pad.y=game.upper_bound
-  end
- -- check if paddle goes out of the screen and fix the issue
-  if buttondown and pad.y + pad.h < game.lower_bound then
-   pad.y+=1
-  elseif buttondown and pad.y + pad.h > game.lower_bound then
-   pad.y=game.lower_bound
-  end
- else
-  -- move pads if player is computer
-  -- start moving only if ball is over the mid line
-  if (ball.x < 64 and pad.x == 0) or (ball.x > 64 and pad.x > 64) then
-  -- move only if the ball is coming in your direction
-   if ((pad.x==0) and (ball.x_speed<0)) or ((pad.x>0) and (ball.x_speed>0)) then
-    -- go up if your pad center is lower than the ball y coordinate
-    if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
-    -- check if paddle goes out of the screen and, if so fix the issue
-     if pad.y + pad.h < game.lower_bound then
-      pad.y+=1
-     elseif pad.y + pad.h > game.lower_bound then
-      pad.y=game.lower_bound
-     end
-    -- go down if your pad center is lower than the ball y coordinate
-    elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
-    -- check if paddle goes out of the screen and, if so fix the issue
-     if pad.y > game.upper_bound then
-      pad.y-=1
-     elseif pad.y <= game.upper_bound then
-      pad.y=game.upper_bound
-     end
-    end
-   end
-  end
- end
-end
-
 -- spawn ball
 function spawn_ball(direction)
  ball.x=64
@@ -229,6 +167,114 @@ function spawn_ball(direction)
   ball.y_speed=rnd(0.75+0.35)
  else
   ball.y_speed=-(rnd(0.75)+0.35)
+ end
+end
+
+-- newgame
+function new_game()
+ -- reset paddles and ball position
+ reset_variables()
+ -- spawn ball to a random player
+ if rnd(1)>0.5 then
+  spawn_ball("left")
+ else
+  spawn_ball("right")
+ end
+ game.state="running"
+end
+
+-- update the game
+function _update60()
+ game.timer+=1
+ update_game_state()
+ if game.state=="running" then
+  update_pad(pad1)
+  update_pad(pad2)
+  update_ball()
+  update_score()
+ end
+ if game.state=="pause" then
+  draw_pause()
+ end
+
+end
+
+-- checking and updating game state
+function update_game_state()
+ is_pressed=false
+ if btnp(5, 0) and not is_pressed then
+  if game.state=="intro" then
+   new_game()
+  elseif game.state=="over" then
+   stop_music()
+   game.state="intro"
+  elseif game.state=="running" then
+   game.state="pause"
+  elseif game.state=="pause" then
+   game.state="running"
+  end
+  is_pressed=true
+ end
+end
+
+-- pad movement
+function update_pad(pad)
+ -- handle p1 keypresses
+ if pad.x==0 then
+  button_up=btn(2,0)
+  button_down=btn(3,0)
+ else
+ -- handle p2 keypresses
+  button_up=btn(2,1)
+  button_down=btn(3,1)
+ end
+ -- adjust game upper and lower bounds according to theme
+ if game.theme == "modern" then
+  game.upper_bound = 2
+  game.lower_bound = 125
+ elseif game.theme == "classic" then
+  game.upper_bound = 0
+  game.lower_bound = 127
+ end
+ -- move pad if player is not computer
+ if pad.computer==false then
+ -- check if pad goes out of the upper part of the screen
+  if button_up and pad.y > game.upper_bound then
+   pad.y-=pad.speed
+  elseif button_up and pad.y <= game.upper_bound then
+   pad.y=game.upper_bound
+  end
+ -- check if paddle goes out of the bottom parte of the screen
+  if button_down and pad.y + pad.h < game.lower_bound then
+   pad.y+=pad.speed
+  elseif button_down and pad.y + pad.h > game.lower_bound then
+   pad.y=game.lower_bound
+  end
+ else
+  -- move pads if player is computer
+  -- start moving only if ball is over the mid line
+  if (ball.x < 64 and pad.x == 0) or (ball.x > 64 and pad.x > 64) then
+  -- move only if the ball is coming in your direction
+   if ((pad.x==0) and (ball.x_speed<0)) or ((pad.x>0) and (ball.x_speed>0)) then
+    -- go up if your pad center is lower than the ball y coordinate
+    if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
+    -- check if paddle goes out of the screen and, if so fix the issue
+     if pad.y + pad.h < game.lower_bound then
+      pad.y+=pad.speed
+     elseif pad.y + pad.h > game.lower_bound then
+      pad.y=game.lower_bound
+     end
+    -- go down if your pad center is lower than the ball y coordinate
+    elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
+    -- check if paddle goes out of the screen and, if so fix the issue
+     if pad.y > game.upper_bound then
+      pad.y-=pad.speed
+     elseif pad.y <= game.upper_bound then
+      pad.y=game.upper_bound
+     end
+    end
+   end
+  end
  end
 end
 
@@ -284,48 +330,6 @@ function calculate_angle(pad)
  return angle
 end
 
--- pause
-function pause()
- if game.state=="pause" then
-  draw_game()
-  -- draw the pause message
-  -- customize colors according to theme
-  if game.theme=="modern" then
-   box_line_color = colors.orange
-   box_inner_color = colors.brown
-   box_text_color = colors.pink
-  elseif game.theme=="classic" then
-   box_line_color = colors.pink
-   box_inner_color = game.bg_color
-   box_text_color = colors.pink
-  end
-  -- draw box line
-  rectfill(49,59, 79,73, box_line_color)
-  -- draw box color
-  rectfill(50,60, 78,72, box_inner_color)
-  -- draw box text
-  print("pause", 55, 64, box_text_color)
-  ball.pause_x_speed = ball.x_speed
-  ball.pause_y_speed = ball.y_speed
- else
-  ball.x_speed = ball.pause_x_speed
-  ball.y_speed = ball.pause_y_speed
- end
-end
-
--- newgame
-function new_game()
- -- reset paddles and ball position
- reset_variables()
- -- spawn ball to a random player
- if rnd(1)>0.5 then
-  spawn_ball("left")
- else
-  spawn_ball("right")
- end
- game.state="running"
-end
-
 -- update score
 function update_score()
  if ball.x<pad1.x then
@@ -349,44 +353,20 @@ function update_score()
  end
 end
 
--- update the game
-function _update60()
- -- increase game tick - test
- game.timer+=1
- if game.timer >= 60 and not is_happening then
-  is_happening=true
-  game.timer=0
- end
- -- player 1 fire: n and m
- -- player 2 fire: lshift and a
- is_pressed=false
- if btnp(5, 0) and not is_pressed then
-  if game.state=="intro" then
-   new_game()
-  elseif game.state=="over" then
-   stop_music()
-   game.state="intro"
-  elseif game.state=="running" then
-   game.state="pause"
-  elseif game.state=="pause" then
-   game.state="running"
-  end
-  is_pressed=true
- end
- if game.state=="running" then
-  update_pad(pad1)
-  update_pad(pad2)
-  update_ball()
-  update_score()
- end
- if game.state=="pause" then
-  pause()
+
+-- draw the game
+function _draw()
+ if game.state=="intro" then
+  draw_intro()
+ elseif game.state=="running" then
+  draw_game()
+ elseif game.state=="over" then
+  draw_gameover()
  end
 end
 
 -- show intro
 function draw_intro()
- if game.state=="intro" then
   start_music(18)
   ball.x_speed=0
   ball.y_speed=0
@@ -468,20 +448,11 @@ function draw_intro()
     game.theme="modern"
    end
   end
- end
-end
-
--- run the game
-function run_game()
- if game.state=="running" then
-  -- stop the music
-  stop_music()
-  draw_game()
- end
 end
 
 -- draw the game
 function draw_game()
+ stop_music()
  -- draw the background
  rectfill(0,0,128,128,game.bg_color)
  if game.theme == "modern" then
@@ -531,8 +502,7 @@ function draw_game()
 end
 
 -- show gameover
-function gameover()
- if game.state=="over" then
+function draw_gameover()
   start_music(24)
   ball.y = 64
   ball.x = 640
@@ -558,14 +528,35 @@ function gameover()
   else
    write_c("player 2 wins!",64,box_text_inner_color)
   end
- end
 end
 
--- draw the game
-function _draw()
- draw_intro()
- run_game()
- gameover()
+-- pause
+function draw_pause()
+ if game.state=="pause" then
+  draw_game()
+  -- draw the pause message
+  -- customize colors according to theme
+  if game.theme=="modern" then
+   box_line_color = colors.orange
+   box_inner_color = colors.brown
+   box_text_color = colors.pink
+  elseif game.theme=="classic" then
+   box_line_color = colors.pink
+   box_inner_color = game.bg_color
+   box_text_color = colors.pink
+  end
+  -- draw box line
+  rectfill(49,59, 79,73, box_line_color)
+  -- draw box color
+  rectfill(50,60, 78,72, box_inner_color)
+  -- draw box text
+  print("pause", 55, 64, box_text_color)
+  ball.pause_x_speed = ball.x_speed
+  ball.pause_y_speed = ball.y_speed
+ else
+  ball.x_speed = ball.pause_x_speed
+  ball.y_speed = ball.pause_y_speed
+ end
 end
 
 __gfx__
