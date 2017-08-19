@@ -112,7 +112,7 @@ function stop_music()
  music(-1, 300) music_playing=false
 end
 
--- print text with dark outline - davide
+-- print text with dark outline
 function write_ol(s,_x,_y,inner_color,outer_color)
  for x=-1,1 do
    for y=-1,1 do
@@ -127,6 +127,11 @@ function write_ol_c(s,_y,inner_color,outer_color)
  write_ol(s,64-#s*4/2,_y,inner_color,outer_color)
 end
 
+
+-- print text centered
+function write_c(s,_y,inner_color)
+ print(s,64-#s*4/2,_y,inner_color)
+end
 
 --
 -- game functions
@@ -389,10 +394,18 @@ function draw_intro()
   blink_frame = (game.timer == 0)
   rectfill(0,0, 128,128, game.bg_color)
   write_ol("pong-ino",46,35,colors.pink,colors.black)
-  write_ol(game.player_1_option, 30, 60, colors.red, colors.darkgrey)
-  write_ol(game.player_2_option, 30, 70, colors.red, colors.darkgrey)
-  write_ol(game.theme_option, 30, 80, colors.red, colors.darkgrey)
-  write_ol("press m to start", 34, 100, colors.red, colors.darkgrey)
+  if game.theme=="classic" then
+   print(game.player_1_option, 30, 60, colors.red, colors.darkgrey)
+   print(game.player_2_option, 30, 70, colors.red, colors.darkgrey)
+   print(game.theme_option, 30, 80, colors.red, colors.darkgrey)
+   print("press m to start", 34, 100, colors.red, colors.darkgrey)
+  else if game.theme=="modern" then
+   print(game.player_1_option, 30, 60, colors.pink)
+   print(game.player_2_option, 30, 70, colors.pink)
+   print(game.theme_option, 30, 80, colors.pink)
+   print("press m to start", 34, 100, colors.pink)
+  end
+  end
   write_ol("a pipiₚsoft game", 50, 118, colors.pink, colors.black)
   --print("pong-ino", 46, 35, colors.pink)
   --print(game.player_1_option, 30, 60, colors.red)
@@ -530,10 +543,10 @@ function gameover()
    box_line_color = colors.orange
    box_inner_color = colors.brown
    box_text_outer_color = colors.darkgreen
-   box_text_inner_color = colors.green
+   box_text_inner_color = colors.pink
   elseif game.theme=="classic" then
    box_line_color = colors.pink
-   box_inner_color = game.bg_color
+   box_inner_color = colors.black
    box_text_outer_color = colors.red
    box_text_inner_color = colors.pink
   end
@@ -541,9 +554,9 @@ function gameover()
   rectfill(29,59, 96,73, box_line_color)
   rectfill(30,60, 95,72, box_inner_color)
   if pad1.winner==true then
-   write_ol_c("player 1 wins!",64,box_text_inner_color,box_text_outer_color)
+   write_c("player 1 wins!",64,box_text_inner_color)
   else
-   write_ol_c("player 2 wins!",64,box_text_inner_color,box_text_outer_color)
+   write_c("player 2 wins!",64,box_text_inner_color)
   end
  end
 end
