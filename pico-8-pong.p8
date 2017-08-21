@@ -248,7 +248,7 @@ function update_pad(pad)
   if button_down and pad.y + pad.h < game.lower_bound then
    pad.y+=pad.speed
   elseif button_down and pad.y + pad.h > game.lower_bound then
-   pad.y=game.lower_bound
+   pad.y=game.lower_bound - pad.h
   end
  else
   -- move pads if player is computer
@@ -262,7 +262,7 @@ function update_pad(pad)
      if pad.y + pad.h < game.lower_bound then
       pad.y+=pad.speed
      elseif pad.y + pad.h > game.lower_bound then
-      pad.y=game.lower_bound
+      pad.y=game.lower_bound - pad.h
      end
     -- go down if your pad center is lower than the ball y coordinate
     elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
