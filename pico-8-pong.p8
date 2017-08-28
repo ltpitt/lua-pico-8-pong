@@ -86,6 +86,7 @@ intro_cursor ={
 -- game variables
 game={
  timer=0,
+ timer_set=false,
  state="intro",
  winning_score=11,
  timer=0,
@@ -101,6 +102,69 @@ game={
 --
 -- helper functions
 --
+
+-- start timers code
+local timers = {}
+local last_time = nil
+function init_timers ()
+ last_time = time()
+end
+
+function add_timer (name,
+    length, step_fn, end_fn,
+    start_paused)
+  local timer = {
+    length=length,
+    elapsed=0,
+    active=not start_paused,
+    step_fn=step_fn,
+    end_fn=end_fn
+  }
+  timers[name] = timer
+  return timer
+end
+
+function update_timers ()
+  local t = time()
+  local dt = t - last_time
+  last_time = t
+  for name,timer in pairs(timers) do
+    if timer.active then
+      timer.elapsed += dt
+      local elapsed = timer.elapsed
+      local length = timer.length
+      if elapsed < length then
+        if timer.step_fn then
+          timer.step_fn(dt,elapsed,length,timer)
+        end
+      else
+        if timer.end_fn then
+          timer.end_fn(dt,elapsed,length,timer)
+        end
+        timer.active = false
+      end
+    end
+  end
+end
+
+function pause_timer (name)
+  local timer = timers[name]
+  if (timer) timer.active = false
+end
+
+function resume_timer (name)
+  local timer = timers[name]
+  if (timer) timer.active = true
+end
+
+function restart_timer (name, start_paused)
+  local timer = timers[name]
+  if (not timer) return
+  timer.elapsed = 0
+  timer.active = not start_paused
+end
+
+-- end timers code
 
 -- play music
 function start_music(n)
@@ -138,6 +202,35 @@ end
 -- game functions
 --
 
+function _init()
+ init_timers()
+ -- timer variable
+ local last_int = 0
+ -- start timer
+ game_timer = add_timer(
+  "spawn",
+  3,
+  function (dt,elapsed,length)
+    local i = flr(elapsed)
+    if i > last_int then
+      last_int = i
+    end
+  end,
+  function ()
+   if direction=="left" then
+    ball.x_speed=-(rnd(0.75)+1.5)
+   else
+    ball.x_speed=rnd(0.75)+1.5
+   end
+   if rnd(1)>0.5 then
+    ball.y_speed=rnd(0.75+0.35)
+   else
+    ball.y_speed=-(rnd(0.75)+0.35)
+   end
+  end
+   )
+end
+
 -- reset variables
 function reset_variables()
  -- scores
@@ -156,18 +249,12 @@ end
 
 -- spawn ball
 function spawn_ball(direction)
+ -- reset ball position to center
  ball.x=64
  ball.y=64
- if direction=="left" then
-  ball.x_speed=-(rnd(0.75)+1.5)
- else
-  ball.x_speed=rnd(0.75)+1.5
- end
- if rnd(1)>0.5 then
-  ball.y_speed=rnd(0.75+0.35)
- else
-  ball.y_speed=-(rnd(0.75)+0.35)
- end
+ ball.x_speed=0
+ ball.y_speed=0
+ restart_timer("spawn",false)
 end
 
 -- newgame
@@ -185,6 +272,7 @@ end
 
 -- update the game
 function _update60()
+ update_timers()
  game.timer+=1
  update_game_state()
  if game.state=="running" then
@@ -427,6 +515,10 @@ function draw_intro()
     game.theme_option = "theme    - classic"
     game.bg_color=colors.black
     game.theme="classic"
+    if game.theme == "modern" then
+     ball.x = ball.x + ball.size
+     ball.y = ball.y + ball.size
+    end
    end
   end
 
