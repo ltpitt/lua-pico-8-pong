@@ -96,7 +96,9 @@ game={
  theme="modern",
  player_1_option = "player 1 - human",
  player_2_option = "player 2 - computer",
- theme_option    = "theme    - modern"
+ theme_option    = "theme    - modern",
+ countdown_text = 3,
+ countdown_over = false
 }
 
 --
@@ -207,14 +209,17 @@ function _init()
  -- timer variable
  local last_int = 0
  -- start timer
+ print("asdasdasdasdas")
  game_timer = add_timer(
   "spawn",
   3,
   function (dt,elapsed,length)
+    game.countdown_over=false
     local i = flr(elapsed)
     if i > last_int then
       last_int = i
     end
+    game.countdown_text = -flr(elapsed - 3)
   end,
   function ()
    if direction=="left" then
@@ -227,6 +232,7 @@ function _init()
    else
     ball.y_speed=-(rnd(0.75)+0.35)
    end
+   game.countdown_over=true
   end
    )
 end
@@ -591,6 +597,10 @@ function draw_game()
   -- draw bonus
   --spr(intro_cursor.sprite, intro_cursor.x, intro_cursor.y)
   --spr(ball.sprite, ball.x-3, ball.y-3)
+ -- draw countdown
+ if not game.countdown_over then
+  print(game.countdown_text,63,62,colors.darkblue)
+ end
 end
 
 -- show gameover
