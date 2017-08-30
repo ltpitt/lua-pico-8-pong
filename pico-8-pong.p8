@@ -209,7 +209,6 @@ function _init()
  -- timer variable
  local last_int = 0
  -- start timer
- print("asdasdasdasdas")
  game_timer = add_timer(
   "spawn",
   3,
@@ -599,7 +598,10 @@ function draw_game()
   --spr(ball.sprite, ball.x-3, ball.y-3)
  -- draw countdown
  if not game.countdown_over then
-  print(game.countdown_text,63,62,colors.darkblue)
+  print("game starts",47,47,colors.black)
+  print("game starts",46,46,colors.pink)
+  print(" in     " .. game.countdown_text,47,63,colors.black)
+  print(" in     " .. game.countdown_text,46,62,colors.pink)
  end
 end
 
