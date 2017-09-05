@@ -35,10 +35,10 @@ colors={
 -- pad 1 variables
 pad1={
  w=3,
- h=24,
+ h=14,
  x=0,
  y=0,
- speed=1,
+ speed=3,
  color=colors.pink,
  score=0,
  winner=false,
@@ -48,10 +48,10 @@ pad1={
 -- pad 2 variables
 pad2={
  w=3,
- h=24,
+ h=14,
  x=123,
  y=0,
- speed=1,
+ speed=3,
  color=colors.pink,
  score=0,
  winner=false,
@@ -62,16 +62,30 @@ pad2={
 ball={
  x=64,
  y=64,
- w=4,
- h=4,
+ w=3,
+ h=3,
  color=colors.pink,
  size=2,
  x_speed=0,
  y_speed=0,
  sprite=0,
  pause_x_speed=0,
- pause_y_speed=0
+ pause_y_speed=0,
+ pause = function()
+          ball.pause_x_speed = ball.x_speed
+          ball.pause_y_speed = ball.y_speed
+         end,
+ stop = function()
+          ball.x_speed = 0
+          ball.y_speed = 0
+         end,
+ start = function()
+          ball.x_speed = ball.pause_x_speed
+          ball.y_speed = ball.pause_y_speed
+         end
 }
+
+
 
 -- intro_cursor variables
 intro_cursor ={
@@ -85,6 +99,7 @@ intro_cursor ={
 
 -- game variables
 game={
+ debug=false,
  timer=0,
  timer_set=false,
  state="intro",
@@ -104,6 +119,11 @@ game={
 --
 -- helper functions
 --
+
+function are_colliding(entity_a,entity_b) -- are entities hitting each others boundary and not the same type?
+ return entity_b.x < entity_a.x + entity_a.w and entity_a.x < entity_b.x + entity_b.w
+ and entity_b.y < entity_a.y + entity_a.h and entity_a.y < entity_b.y + entity_b.h
+end
 
 -- start timers code
 local timers = {}
@@ -221,19 +241,33 @@ function _init()
     game.countdown_text = -flr(elapsed - 3)
   end,
   function ()
-   if direction=="left" then
-    ball.x_speed=-(rnd(0.75)+1.5)
-   else
-    ball.x_speed=rnd(0.75)+1.5
-   end
-   if rnd(1)>0.5 then
-    ball.y_speed=rnd(0.75+0.35)
-   else
-    ball.y_speed=-(rnd(0.75)+0.35)
-   end
-   game.countdown_over=true
+   spawn_ball(direction)
   end
    )
+end
+
+function spawn_ball(direction)
+ if direction=="left" then
+  ball.x_speed=-(rnd(0.75)+1.5)
+ else
+  ball.x_speed=rnd(0.75)+1.5
+ end
+ if rnd(1)>0.5 then
+  ball.y_speed=rnd(0.75+0.35)
+ else
+  ball.y_speed=-(rnd(0.75)+0.35)
+ end
+ game.countdown_over=true
+ -- debug
+ if game.debug then
+  ball.y_speed=0
+  ball.x_speed=0
+  if rnd(1)>0.5 then
+   ball.x_speed=0.5
+  else
+   ball.x_speed=-0.5
+  end
+ end
 end
 
 -- reset variables
@@ -253,7 +287,7 @@ function reset_variables()
 end
 
 -- spawn ball
-function spawn_ball(direction)
+function restart_spawn_ball_timer(direction)
  -- reset ball position to center
  ball.x=64
  ball.y=64
@@ -268,15 +302,16 @@ function new_game()
  reset_variables()
  -- spawn ball to a random player
  if rnd(1)>0.5 then
-  spawn_ball("left")
+  restart_spawn_ball_timer("left")
  else
-  spawn_ball("right")
+  restart_spawn_ball_timer("right")
  end
  game.state="running"
 end
 
 -- update the game
 function _update60()
+ debug=are_colliding(ball,pad1)
  update_timers()
  game.timer+=1
  update_game_state()
@@ -346,7 +381,7 @@ function update_pad(pad)
  else
   -- move pads if player is computer
   -- start moving only if ball is over the mid line
-  if (ball.x < 64 and pad.x == 0) or (ball.x > 64 and pad.x > 64) then
+  if (ball.x < 44 and pad.x == 0) or (ball.x > 84 and pad.x > 64) then
   -- move only if the ball is coming in your direction
    if ((pad.x==0) and (ball.x_speed<0)) or ((pad.x>0) and (ball.x_speed>0)) then
     -- go up if your pad center is lower than the ball y coordinate
@@ -373,6 +408,7 @@ end
 
 -- ball movement
 function update_ball()
+
  -- move ball
  ball.x+=ball.x_speed
  ball.y+=ball.y_speed
@@ -384,11 +420,19 @@ function update_ball()
   ball.y=4
   ball.y_speed=-ball.y_speed
   sfx(0)
+  -- debug
+  if game.debug then
+   ball.stop()
+  end
  -- bottom
  elseif  ball.y > 126 - ball.size then
   ball.y=123
   ball.y_speed=-ball.y_speed
   sfx(0)
+  -- debug
+  if game.debug then
+   ball.stop()
+  end
  end
  --
  -- bounce the ball off the paddle
@@ -400,6 +444,10 @@ function update_ball()
     ball.x_speed=-(ball.x_speed-0.1)
     ball.y_speed=calculate_angle(pad1)
     sfx(1)
+    -- debug
+    if game.debug then
+     ball.stop()
+    end
    end
   end
  end
@@ -431,7 +479,7 @@ function update_score()
    pad2.winner=true
    game.state="over"
   else
-   spawn_ball("left")
+   restart_spawn_ball_timer("left")
    sfx(3)
   end
  elseif ball.x>pad2.x+pad2.w then
@@ -440,7 +488,7 @@ function update_score()
    pad1.winner=true
    game.state="over"
   else
-   spawn_ball("right")
+   restart_spawn_ball_timer("right")
    sfx(3)
   end
  end
@@ -520,10 +568,6 @@ function draw_intro()
     game.theme_option = "theme    - classic"
     game.bg_color=colors.black
     game.theme="classic"
-    if game.theme == "modern" then
-     ball.x = ball.x + ball.size
-     ball.y = ball.y + ball.size
-    end
    end
   end
 
@@ -593,15 +637,16 @@ function draw_game()
  -- draw the scores
  print(pad1.score, 12, 6, colors.pink)
  print(pad2.score, 113, 6, colors.pink)
-  -- draw bonus
-  --spr(intro_cursor.sprite, intro_cursor.x, intro_cursor.y)
-  --spr(ball.sprite, ball.x-3, ball.y-3)
  -- draw countdown
  if not game.countdown_over then
   print("game starts",47,47,colors.black)
   print("game starts",46,46,colors.pink)
   print(" in     " .. game.countdown_text,47,63,colors.black)
   print(" in     " .. game.countdown_text,46,62,colors.pink)
+ end
+ -- draw debug
+ if game.debug then
+  print(debug,30,30,colors.pink)
  end
 end
 
@@ -655,11 +700,9 @@ function draw_pause()
   rectfill(50,60, 78,72, box_inner_color)
   -- draw box text
   print("pause", 55, 64, box_text_color)
-  ball.pause_x_speed = ball.x_speed
-  ball.pause_y_speed = ball.y_speed
+  ball.pause()
  else
-  ball.x_speed = ball.pause_x_speed
-  ball.y_speed = ball.pause_y_speed
+  ball.start()
  end
 end
 
