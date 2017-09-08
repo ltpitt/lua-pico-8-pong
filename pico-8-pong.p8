@@ -1,8 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
--- pico-8-pong
--- contact me: www.davidenastri.it
+-- pong-ino
+-- www.davidenastri.it
 --
 -- a pong implementation
 -- for pico-8
@@ -71,21 +71,19 @@ ball={
  sprite=0,
  pause_x_speed=0,
  pause_y_speed=0,
- pause = function()
+ pause=function()
           ball.pause_x_speed = ball.x_speed
           ball.pause_y_speed = ball.y_speed
          end,
- stop = function()
+ stop=function()
           ball.x_speed = 0
           ball.y_speed = 0
          end,
- start = function()
+ start=function()
           ball.x_speed = ball.pause_x_speed
           ball.y_speed = ball.pause_y_speed
          end
 }
-
-
 
 -- intro_cursor variables
 intro_cursor ={
@@ -120,11 +118,6 @@ game={
 -- helper functions
 --
 
-function are_colliding(entity_a,entity_b) -- are entities hitting each others boundary and not the same type?
- return entity_b.x < entity_a.x + entity_a.w and entity_a.x < entity_b.x + entity_b.w
- and entity_b.y < entity_a.y + entity_a.h and entity_a.y < entity_b.y + entity_b.h
-end
-
 -- start timers code
 local timers = {}
 local last_time = nil
@@ -133,59 +126,58 @@ function init_timers ()
 end
 
 function add_timer (name,
-    length, step_fn, end_fn,
-    start_paused)
-  local timer = {
-    length=length,
-    elapsed=0,
-    active=not start_paused,
-    step_fn=step_fn,
-    end_fn=end_fn
-  }
-  timers[name] = timer
-  return timer
+   length, step_fn, end_fn,
+   start_paused)
+ local timer = {
+   length=length,
+   elapsed=0,
+   active=not start_paused,
+   step_fn=step_fn,
+   end_fn=end_fn
+ }
+ timers[name] = timer
+ return timer
 end
 
-function update_timers ()
-  local t = time()
-  local dt = t - last_time
-  last_time = t
-  for name,timer in pairs(timers) do
-    if timer.active then
-      timer.elapsed += dt
-      local elapsed = timer.elapsed
-      local length = timer.length
-      if elapsed < length then
-        if timer.step_fn then
-          timer.step_fn(dt,elapsed,length,timer)
-        end
-      else
-        if timer.end_fn then
-          timer.end_fn(dt,elapsed,length,timer)
-        end
-        timer.active = false
-      end
+function update_timers()
+ local t = time()
+ local dt = t - last_time
+ last_time = t
+ for name,timer in pairs(timers) do
+  if timer.active then
+   timer.elapsed += dt
+   local elapsed = timer.elapsed
+   local length = timer.length
+   if elapsed < length then
+    if timer.step_fn then
+     timer.step_fn(dt,elapsed,length,timer)
     end
+   else
+    if timer.end_fn then
+     timer.end_fn(dt,elapsed,length,timer)
+    end
+    timer.active = false
+   end
   end
+ end
 end
 
 function pause_timer (name)
-  local timer = timers[name]
-  if (timer) timer.active = false
+ local timer = timers[name]
+ if (timer) timer.active = false
 end
 
 function resume_timer (name)
-  local timer = timers[name]
-  if (timer) timer.active = true
+ local timer = timers[name]
+ if (timer) timer.active = true
 end
 
 function restart_timer (name, start_paused)
-  local timer = timers[name]
-  if (not timer) return
+ local timer = timers[name]
+ if (not timer) return
   timer.elapsed = 0
   timer.active = not start_paused
 end
-
 -- end timers code
 
 -- play music
@@ -203,9 +195,9 @@ end
 -- print text with dark outline
 function write_ol(s,_x,_y,inner_color,outer_color)
  for x=-1,1 do
-   for y=-1,1 do
-     print(s,_x+x,_y+y,outer_color)
-   end
+  for y=-1,1 do
+   print(s,_x+x,_y+y,outer_color)
+  end
  end
  print(s,_x,_y,inner_color)
 end
@@ -311,7 +303,7 @@ end
 
 -- update the game
 function _update60()
- debug=are_colliding(ball,pad1)
+ debug_text="debugging mode"
  update_timers()
  game.timer+=1
  update_game_state()
@@ -321,10 +313,6 @@ function _update60()
   update_ball()
   update_score()
  end
- if game.state=="pause" then
-  draw_pause()
- end
-
 end
 
 -- checking and updating game state
@@ -386,22 +374,26 @@ function update_pad(pad)
    if ((pad.x==0) and (ball.x_speed<0)) or ((pad.x>0) and (ball.x_speed>0)) then
     -- go up if your pad center is lower than the ball y coordinate
     if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
-    -- check if paddle goes out of the screen and, if so fix the issue
+    -- move only if pad is not over the lower bound
      if pad.y + pad.h < game.lower_bound then
       pad.y+=pad.speed
-     elseif pad.y + pad.h > game.lower_bound then
-      pad.y=game.lower_bound - pad.h
      end
     -- go down if your pad center is lower than the ball y coordinate
     elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
-    -- check if paddle goes out of the screen and, if so fix the issue
+    -- move only if pad is not over the upper bound
      if pad.y > game.upper_bound then
       pad.y-=pad.speed
-     elseif pad.y <= game.upper_bound then
-      pad.y=game.upper_bound
      end
     end
    end
+  end
+  -- keeps computer pad lower than upper bound
+  if pad.y <= game.upper_bound then
+   pad.y=game.upper_bound
+  end
+  -- keeps computer pad higher than lower bound
+  if pad.y + pad.h > game.lower_bound then
+   pad.y=game.lower_bound - pad.h
   end
  end
 end
@@ -438,8 +430,13 @@ function update_ball()
  -- bounce the ball off the paddle
  --
  -- bounce paddle 1
+ if game.theme=="classic" then
+  classic_delta=1
+ elseif game.theme=="modern" then
+  classic_delta=-1
+ end
  if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
-  if ball.x - ball.size <= pad1.x + pad1.w + -ball.x_speed then
+  if ball.x - ball.size + classic_delta <= pad1.x + pad1.w + -ball.x_speed then
    if ball.x_speed < 0 then
     ball.x_speed=-(ball.x_speed-0.1)
     ball.y_speed=calculate_angle(pad1)
@@ -503,6 +500,8 @@ function _draw()
   draw_game()
  elseif game.state=="over" then
   draw_gameover()
+ elseif game.state=="pause" then
+  draw_pause()
  end
 end
 
@@ -646,7 +645,7 @@ function draw_game()
  end
  -- draw debug
  if game.debug then
-  print(debug,30,30,colors.pink)
+  print(debug_text,6,120,colors.pink)
  end
 end
 
@@ -683,7 +682,6 @@ end
 function draw_pause()
  if game.state=="pause" then
   draw_game()
-  -- draw the pause message
   -- customize colors according to theme
   if game.theme=="modern" then
    box_line_color = colors.orange
@@ -694,6 +692,7 @@ function draw_pause()
    box_inner_color = game.bg_color
    box_text_color = colors.pink
   end
+  -- draw the pause message
   -- draw box line
   rectfill(49,59, 79,73, box_line_color)
   -- draw box color
