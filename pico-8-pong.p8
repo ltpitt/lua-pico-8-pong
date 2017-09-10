@@ -111,7 +111,11 @@ game={
  player_2_option = "player 2 - computer",
  theme_option    = "theme    - modern",
  countdown_text = 3,
- countdown_over = false
+ countdown_over = false,
+ bounce_paddle_sfx_1=1,
+ bounce_paddle_sfx_2=2,
+ bounce_wall_sfx=0,
+ lost_ball_sfx=3
 }
 
 --
@@ -238,6 +242,14 @@ function _init()
    )
 end
 
+function draw_net(x,y,w,gap_length,repetitions,color)
+ for i=0,repetitions do
+  if i%2==0 then
+   rectfill(x,y-(i*gap_length),x+w,y-gap_length-(i*gap_length),color)
+  end
+ end
+end
+
 function spawn_ball(direction)
  if direction=="left" then
   ball.x_speed=-(rnd(0.75)+1.5)
@@ -281,7 +293,11 @@ end
 -- spawn ball
 function restart_spawn_ball_timer(direction)
  -- reset ball position to center
- ball.x=64
+ if game.theme=="classic" then
+  ball.x=63
+ elseif game.theme=="modern" then
+  ball.x=64
+ end
  ball.y=64
  ball.x_speed=0
  ball.y_speed=0
@@ -304,6 +320,7 @@ end
 -- update the game
 function _update60()
  debug_text="debugging mode"
+ --debug_text=game.bounce_paddle_sfx_1
  update_timers()
  game.timer+=1
  update_game_state()
@@ -411,7 +428,7 @@ function update_ball()
  if ball.y < 1 + ball.size then
   ball.y=4
   ball.y_speed=-ball.y_speed
-  sfx(0)
+  sfx(game.bounce_wall_sfx)
   -- debug
   if game.debug then
    ball.stop()
@@ -420,7 +437,7 @@ function update_ball()
  elseif  ball.y > 126 - ball.size then
   ball.y=123
   ball.y_speed=-ball.y_speed
-  sfx(0)
+  sfx(game.bounce_wall_sfx)
   -- debug
   if game.debug then
    ball.stop()
@@ -440,7 +457,7 @@ function update_ball()
    if ball.x_speed < 0 then
     ball.x_speed=-(ball.x_speed-0.1)
     ball.y_speed=calculate_angle(pad1)
-    sfx(1)
+    sfx(game.bounce_paddle_sfx_1)
     -- debug
     if game.debug then
      ball.stop()
@@ -454,7 +471,7 @@ function update_ball()
    if ball.x_speed > 0 then
     ball.x_speed=-(ball.x_speed+0.1)
     ball.y_speed=calculate_angle(pad2)
-    sfx(2)
+    sfx(game.bounce_paddle_sfx_2)
    end
   end
  end
@@ -477,7 +494,7 @@ function update_score()
    game.state="over"
   else
    restart_spawn_ball_timer("left")
-   sfx(3)
+   sfx(game.lost_ball_sfx)
   end
  elseif ball.x>pad2.x+pad2.w then
   pad1.score += 1
@@ -486,7 +503,7 @@ function update_score()
    game.state="over"
   else
    restart_spawn_ball_timer("right")
-   sfx(3)
+   sfx(game.lost_ball_sfx)
   end
  end
 end
@@ -567,6 +584,10 @@ function draw_intro()
     game.theme_option = "theme    - classic"
     game.bg_color=colors.black
     game.theme="classic"
+    game.bounce_paddle_sfx_1=61
+    game.bounce_paddle_sfx_2=61
+    game.bounce_wall_sfx=62
+    game.lost_ball_sfx=63
    end
   end
 
@@ -586,6 +607,10 @@ function draw_intro()
     game.theme_option = "theme    - modern"
     game.bg_color=colors.darkgreen
     game.theme="modern"
+    game.bounce_paddle_sfx_1=1
+    game.bounce_paddle_sfx_2=2
+    game.bounce_wall_sfx=0
+    game.lost_ball_sfx=3
    end
   end
 end
@@ -604,14 +629,15 @@ function draw_game()
   line(0,1,128,1,colors.orange)
   line(0,126,128,126,colors.orange)
  else if game.theme== "classic" then
+  draw_net(63,126,2,4,40,colors.pink)
   -- draw the central line, zebra style
-  line(64, 0, 64, 10, colors.pink)
-  line(64, 20, 64, 30, colors.pink)
-  line(64, 40, 64, 50, colors.pink)
-  line(64, 60, 64, 70, colors.pink)
-  line(64, 80, 64, 90, colors.pink)
-  line(64, 100, 64, 110, colors.pink)
-  line(64, 120, 64, 130, colors.pink)
+  --line(64, 0, 64, 10, colors.pink)
+  --line(64, 20, 64, 30, colors.pink)
+  --line(64, 40, 64, 50, colors.pink)
+  --line(64, 60, 64, 70, colors.pink)
+  --line(64, 80, 64, 90, colors.pink)
+  --line(64, 100, 64, 110, colors.pink)
+  --line(64, 120, 64, 130, colors.pink)
  end
  end
  -- draw the 1st paddle
@@ -1062,9 +1088,9 @@ __sfx__
 0114001802140025351f7341f725247342472504140045351f7341f725247342472505140055352b7242b715307243071507140075352b7242b71534724347150000000000000000000000000000000000000000
 011400180c0433772534015307252f0152d725306152d7252f0153072534015377250c0433772534015307252f0152d725306152d7252f0153072534015377250000000000000000000000000000000000000000
 011400180c0433c7253701534725300152f725306152f7253001534725370153c7250c0433c7253701534725300152f725306152f7253001534725370153c7250000000000000000000000000000000000000000
-011400180c043287252b0152f725340153772530615287252901530725370153c7250c043287252901530725370153c72530615287252901530725370153c7250000000000000000000000000000000000000000
-011400180c003287052b0052f705340053770530605287052900530705370053c7050c0032f7053000534705370053c705306052b7052d00532705370053b7050000000000000000000000000000000000000000
-000f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0114000016175287052b0052f705340053770530605287052900530705370053c7050c003287052900530705370053c70530605287052900530705370053c7050000000000000000000000000000000000000000
+011400000a1750a1052b0052f7050a10537705306050a4062900530705370053c7050c0032f7053000534705370053c705306052b7052d00532705370053b7051610500000000000a10500000000000000000000
+010f00001645016450164501645000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __music__
 00 00014344
 00 00014344
