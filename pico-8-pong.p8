@@ -665,7 +665,7 @@ function draw_gameover()
   rectfill(30,60, 95,72, box_inner_color)
   if pad1.winner==true then
    write_c("player 1 wins!",64,box_text_inner_color)
-  elseif pad2.winner==true
+  elseif pad2.winner==true then
    write_c("player 2 wins!",64,box_text_inner_color)
   end
 end
