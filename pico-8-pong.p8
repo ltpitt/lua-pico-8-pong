@@ -1,8 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
--- pong-ino
--- www.davidenastri.it
+-- pico-8-pong
+-- contact me: www.davidenastri.it
 --
 -- a pong implementation
 -- for pico-8
@@ -65,25 +65,28 @@ ball={
  w=3,
  h=3,
  color=colors.pink,
+ next_spawn_direction="left",
  size=2,
  x_speed=0,
  y_speed=0,
  sprite=0,
  pause_x_speed=0,
  pause_y_speed=0,
- pause=function()
+ pause = function()
           ball.pause_x_speed = ball.x_speed
           ball.pause_y_speed = ball.y_speed
          end,
- stop=function()
+ stop = function()
           ball.x_speed = 0
           ball.y_speed = 0
          end,
- start=function()
+ start = function()
           ball.x_speed = ball.pause_x_speed
           ball.y_speed = ball.pause_y_speed
          end
 }
+
+
 
 -- intro_cursor variables
 intro_cursor ={
@@ -112,15 +115,18 @@ game={
  theme_option    = "theme    - modern",
  countdown_text = 3,
  countdown_over = false,
- bounce_paddle_sfx_1=1,
- bounce_paddle_sfx_2=2,
- bounce_wall_sfx=0,
- lost_ball_sfx=3
+ upper_bound = 2,
+ lower_bound = 125
 }
 
 --
 -- helper functions
 --
+
+function are_colliding(entity_a,entity_b) -- are entities hitting each others boundary and not the same type?
+ return entity_b.x < entity_a.x + entity_a.w and entity_a.x < entity_b.x + entity_b.w
+ and entity_b.y < entity_a.y + entity_a.h and entity_a.y < entity_b.y + entity_b.h
+end
 
 -- start timers code
 local timers = {}
@@ -130,58 +136,59 @@ function init_timers ()
 end
 
 function add_timer (name,
-   length, step_fn, end_fn,
-   start_paused)
- local timer = {
-   length=length,
-   elapsed=0,
-   active=not start_paused,
-   step_fn=step_fn,
-   end_fn=end_fn
- }
- timers[name] = timer
- return timer
+    length, step_fn, end_fn,
+    start_paused)
+  local timer = {
+    length=length,
+    elapsed=0,
+    active=not start_paused,
+    step_fn=step_fn,
+    end_fn=end_fn
+  }
+  timers[name] = timer
+  return timer
 end
 
-function update_timers()
- local t = time()
- local dt = t - last_time
- last_time = t
- for name,timer in pairs(timers) do
-  if timer.active then
-   timer.elapsed += dt
-   local elapsed = timer.elapsed
-   local length = timer.length
-   if elapsed < length then
-    if timer.step_fn then
-     timer.step_fn(dt,elapsed,length,timer)
+function update_timers ()
+  local t = time()
+  local dt = t - last_time
+  last_time = t
+  for name,timer in pairs(timers) do
+    if timer.active then
+      timer.elapsed += dt
+      local elapsed = timer.elapsed
+      local length = timer.length
+      if elapsed < length then
+        if timer.step_fn then
+          timer.step_fn(dt,elapsed,length,timer)
+        end
+      else
+        if timer.end_fn then
+          timer.end_fn(dt,elapsed,length,timer)
+        end
+        timer.active = false
+      end
     end
-   else
-    if timer.end_fn then
-     timer.end_fn(dt,elapsed,length,timer)
-    end
-    timer.active = false
-   end
   end
- end
 end
 
 function pause_timer (name)
- local timer = timers[name]
- if (timer) timer.active = false
+  local timer = timers[name]
+  if (timer) timer.active = false
 end
 
 function resume_timer (name)
- local timer = timers[name]
- if (timer) timer.active = true
+  local timer = timers[name]
+  if (timer) timer.active = true
 end
 
 function restart_timer (name, start_paused)
- local timer = timers[name]
- if (not timer) return
+  local timer = timers[name]
+  if (not timer) return
   timer.elapsed = 0
   timer.active = not start_paused
 end
+
 -- end timers code
 
 -- play music
@@ -199,9 +206,9 @@ end
 -- print text with dark outline
 function write_ol(s,_x,_y,inner_color,outer_color)
  for x=-1,1 do
-  for y=-1,1 do
-   print(s,_x+x,_y+y,outer_color)
-  end
+   for y=-1,1 do
+     print(s,_x+x,_y+y,outer_color)
+   end
  end
  print(s,_x,_y,inner_color)
 end
@@ -237,17 +244,9 @@ function _init()
     game.countdown_text = -flr(elapsed - 3)
   end,
   function ()
-   spawn_ball(direction)
+   spawn_ball(ball.spawn_direction)
   end
    )
-end
-
-function draw_net(x,y,w,gap_length,repetitions,color)
- for i=0,repetitions do
-  if i%2==0 then
-   rectfill(x,y-(i*gap_length),x+w,y-gap_length-(i*gap_length),color)
-  end
- end
 end
 
 function spawn_ball(direction)
@@ -291,13 +290,9 @@ function reset_variables()
 end
 
 -- spawn ball
-function restart_spawn_ball_timer(direction)
+function restart_spawn_ball_timer()
  -- reset ball position to center
- if game.theme=="classic" then
-  ball.x=63
- elseif game.theme=="modern" then
-  ball.x=64
- end
+ ball.x=64
  ball.y=64
  ball.x_speed=0
  ball.y_speed=0
@@ -310,17 +305,17 @@ function new_game()
  reset_variables()
  -- spawn ball to a random player
  if rnd(1)>0.5 then
-  restart_spawn_ball_timer("left")
+  ball.spawn_direction="left"
  else
-  restart_spawn_ball_timer("right")
+  ball.spawn_direction="right"
  end
+ restart_spawn_ball_timer()
  game.state="running"
 end
 
 -- update the game
 function _update60()
- debug_text="debugging mode"
- --debug_text=game.bounce_paddle_sfx_1
+ debug=are_colliding(ball,pad1)
  update_timers()
  game.timer+=1
  update_game_state()
@@ -330,6 +325,10 @@ function _update60()
   update_ball()
   update_score()
  end
+ if game.state=="pause" then
+  draw_pause()
+ end
+
 end
 
 -- checking and updating game state
@@ -361,25 +360,17 @@ function update_pad(pad)
   button_up=btn(2,1)
   button_down=btn(3,1)
  end
- -- adjust game upper and lower bounds according to theme
- if game.theme == "modern" then
-  game.upper_bound = 2
-  game.lower_bound = 125
- elseif game.theme == "classic" then
-  game.upper_bound = 0
-  game.lower_bound = 127
- end
  -- move pad if player is not computer
  if pad.computer==false then
  -- check if pad goes out of the upper part of the screen
   if button_up and pad.y > game.upper_bound then
-   pad.y=(pad.y+128-pad.speed)%128
+   pad.y-=pad.speed
   elseif button_up and pad.y <= game.upper_bound then
    pad.y=game.upper_bound
   end
  -- check if paddle goes out of the bottom parte of the screen
   if button_down and pad.y + pad.h < game.lower_bound then
-   pad.y=(pad.y+128+pad.speed)%128
+   pad.y+=pad.speed
   elseif button_down and pad.y + pad.h > game.lower_bound then
    pad.y=game.lower_bound - pad.h
   end
@@ -391,28 +382,22 @@ function update_pad(pad)
    if ((pad.x==0) and (ball.x_speed<0)) or ((pad.x>0) and (ball.x_speed>0)) then
     -- go up if your pad center is lower than the ball y coordinate
     if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
-    -- move only if pad is not over the lower bound
+    -- check if paddle goes out of the screen and, if so fix the issue
      if pad.y + pad.h < game.lower_bound then
-      pad.y=(pad.y+128+pad.speed)%128
-      --pad.y+=pad.speed
+      pad.y+=pad.speed
+     elseif pad.y + pad.h > game.lower_bound then
+      pad.y=game.lower_bound - pad.h
      end
     -- go down if your pad center is lower than the ball y coordinate
     elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
-    -- move only if pad is not over the upper bound
+    -- check if paddle goes out of the screen and, if so fix the issue
      if pad.y > game.upper_bound then
-      pad.y=(pad.y+128-pad.speed)%128
-      --pad.y-=pad.speed
+      pad.y-=pad.speed
+     elseif pad.y <= game.upper_bound then
+      pad.y=game.upper_bound
      end
     end
    end
-  end
-  -- keeps computer pad lower than upper bound
-  if pad.y <= game.upper_bound then
-   pad.y=game.upper_bound
-  end
-  -- keeps computer pad higher than lower bound
-  if pad.y + pad.h > game.lower_bound then
-   pad.y=game.lower_bound - pad.h
   end
  end
 end
@@ -430,7 +415,7 @@ function update_ball()
  if ball.y < 1 + ball.size then
   ball.y=4
   ball.y_speed=-ball.y_speed
-  sfx(game.bounce_wall_sfx)
+  sfx(0)
   -- debug
   if game.debug then
    ball.stop()
@@ -439,7 +424,7 @@ function update_ball()
  elseif  ball.y > 126 - ball.size then
   ball.y=123
   ball.y_speed=-ball.y_speed
-  sfx(game.bounce_wall_sfx)
+  sfx(0)
   -- debug
   if game.debug then
    ball.stop()
@@ -449,17 +434,12 @@ function update_ball()
  -- bounce the ball off the paddle
  --
  -- bounce paddle 1
- if game.theme=="classic" then
-  classic_delta=1
- elseif game.theme=="modern" then
-  classic_delta=-1
- end
  if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
-  if ball.x - ball.size + classic_delta <= pad1.x + pad1.w + -ball.x_speed then
+  if ball.x - ball.size <= pad1.x + pad1.w + -ball.x_speed then
    if ball.x_speed < 0 then
     ball.x_speed=-(ball.x_speed-0.1)
     ball.y_speed=calculate_angle(pad1)
-    sfx(game.bounce_paddle_sfx_1)
+    sfx(1)
     -- debug
     if game.debug then
      ball.stop()
@@ -473,7 +453,7 @@ function update_ball()
    if ball.x_speed > 0 then
     ball.x_speed=-(ball.x_speed+0.1)
     ball.y_speed=calculate_angle(pad2)
-    sfx(game.bounce_paddle_sfx_2)
+    sfx(2)
    end
   end
  end
@@ -491,40 +471,40 @@ end
 function update_score()
  if ball.x<pad1.x then
   pad2.score += 1
+  ball.spawn_direction="left"
   if pad2.score==game.winning_score then
    pad2.winner=true
-   game.state="over"
   else
-   restart_spawn_ball_timer("left")
-   sfx(game.lost_ball_sfx)
+   restart_spawn_ball_timer()
+   sfx(3)
   end
  elseif ball.x>pad2.x+pad2.w then
   pad1.score += 1
+  ball.spawn_direction="right"
   if pad1.score==game.winning_score then
    pad1.winner=true
-   game.state="over"
   else
-   restart_spawn_ball_timer("right")
-   sfx(game.lost_ball_sfx)
+   restart_spawn_ball_timer()
+   sfx(3)
   end
  end
 end
 
-
--- draw the game
 function _draw()
  if game.state=="intro" then
+  pad1.winner=false
+  pad2.winner=false
   draw_intro()
  elseif game.state=="running" then
   draw_game()
  elseif game.state=="over" then
   draw_gameover()
- elseif game.state=="pause" then
-  draw_pause()
+ end
+ if (pad1.winner or pad2.winner) then
+  game.state="over"
  end
 end
 
--- show intro
 function draw_intro()
   start_music(18)
   ball.x_speed=0
@@ -546,12 +526,6 @@ function draw_intro()
   end
   end
   write_ol("a pipiₚsoft game", 50, 118, colors.pink, colors.black)
-  --print("pong-ino", 46, 35, colors.pink)
-  --print(game.player_1_option, 30, 60, colors.red)
-  --print(game.player_2_option, 30, 70, colors.red)
-  --print(game.theme_option, 30, 80, colors.red)
-  --print("press m to start", 34, 100, colors.red)
-  --print("a pipiₚsoft game", 50, 118, colors.pink)
   spr(intro_cursor.sprite, intro_cursor.x, intro_cursor.y)
   if btnp(2,0) then
    -- if player1 presses up
@@ -586,10 +560,6 @@ function draw_intro()
     game.theme_option = "theme    - classic"
     game.bg_color=colors.black
     game.theme="classic"
-    game.bounce_paddle_sfx_1=61
-    game.bounce_paddle_sfx_2=61
-    game.bounce_wall_sfx=62
-    game.lost_ball_sfx=63
    end
   end
 
@@ -609,19 +579,17 @@ function draw_intro()
     game.theme_option = "theme    - modern"
     game.bg_color=colors.darkgreen
     game.theme="modern"
-    game.bounce_paddle_sfx_1=1
-    game.bounce_paddle_sfx_2=2
-    game.bounce_wall_sfx=0
-    game.lost_ball_sfx=3
    end
   end
 end
 
--- draw the game
 function draw_game()
  stop_music()
  -- draw the background
  rectfill(0,0,128,128,game.bg_color)
+ -- draw the scores
+ print(pad1.score, 12, 6, colors.pink)
+ print(pad2.score, 113, 6, colors.pink)
  if game.theme == "modern" then
   -- draw the central line, continous style
   line(64, 0, 64, 128, colors.pink)
@@ -631,15 +599,14 @@ function draw_game()
   line(0,1,128,1,colors.orange)
   line(0,126,128,126,colors.orange)
  else if game.theme== "classic" then
-  draw_net(63,126,2,4,40,colors.pink)
   -- draw the central line, zebra style
-  --line(64, 0, 64, 10, colors.pink)
-  --line(64, 20, 64, 30, colors.pink)
-  --line(64, 40, 64, 50, colors.pink)
-  --line(64, 60, 64, 70, colors.pink)
-  --line(64, 80, 64, 90, colors.pink)
-  --line(64, 100, 64, 110, colors.pink)
-  --line(64, 120, 64, 130, colors.pink)
+  line(64, 0, 64, 10, colors.pink)
+  line(64, 20, 64, 30, colors.pink)
+  line(64, 40, 64, 50, colors.pink)
+  line(64, 60, 64, 70, colors.pink)
+  line(64, 80, 64, 90, colors.pink)
+  line(64, 100, 64, 110, colors.pink)
+  line(64, 120, 64, 130, colors.pink)
  end
  end
  -- draw the 1st paddle
@@ -661,9 +628,6 @@ function draw_game()
   rectfill(ball.x,ball.y, ball.x+ball.w,ball.y+ball.h,ball.color)
   end
  end
- -- draw the scores
- print(pad1.score, 12, 6, colors.pink)
- print(pad2.score, 113, 6, colors.pink)
  -- draw countdown
  if not game.countdown_over then
   print("game starts",47,47,colors.black)
@@ -673,7 +637,7 @@ function draw_game()
  end
  -- draw debug
  if game.debug then
-  print(debug_text,6,120,colors.pink)
+  print(debug,30,30,colors.pink)
  end
 end
 
@@ -701,7 +665,7 @@ function draw_gameover()
   rectfill(30,60, 95,72, box_inner_color)
   if pad1.winner==true then
    write_c("player 1 wins!",64,box_text_inner_color)
-  else
+  elseif pad2.winner==true
    write_c("player 2 wins!",64,box_text_inner_color)
   end
 end
@@ -710,6 +674,7 @@ end
 function draw_pause()
  if game.state=="pause" then
   draw_game()
+  -- draw the pause message
   -- customize colors according to theme
   if game.theme=="modern" then
    box_line_color = colors.orange
@@ -720,7 +685,6 @@ function draw_pause()
    box_inner_color = game.bg_color
    box_text_color = colors.pink
   end
-  -- draw the pause message
   -- draw box line
   rectfill(49,59, 79,73, box_line_color)
   -- draw box color
@@ -1031,8 +995,8 @@ __map__
 __sfx__
 010300001f3101e300143101b300183001b3001d3001e3001f30022300333000130020300203002a300153002430021300203001f300183001830018300193001b3001b3001b3001e3001b300203001b3001e300
 001000002d51000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-011000001531000000000002410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-000c00001c01022010250102701027010270102801010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+001000001531000000000002410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+010c00001c01022010250102701027010270102801010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0112000003744030250a7040a005137441302508744080251b7110a704037440302524615080240a7440a02508744087250a7040c0241674416025167251652527515140240c7440c025220152e015220150a525
 011200000c033247151f5152271524615227151b5051b5151f5201f5201f5221f510225212252022522225150c0331b7151b5151b715246151b5151b5051b515275202752027522275151f5211f5201f5221f515
 011200000c0330802508744080250872508044187151b7151b7010f0251174411025246150f0240c7440c0250c0330802508744080250872508044247152b715275020f0251174411025246150f0240c7440c025
@@ -1090,9 +1054,9 @@ __sfx__
 0114001802140025351f7341f725247342472504140045351f7341f725247342472505140055352b7242b715307243071507140075352b7242b71534724347150000000000000000000000000000000000000000
 011400180c0433772534015307252f0152d725306152d7252f0153072534015377250c0433772534015307252f0152d725306152d7252f0153072534015377250000000000000000000000000000000000000000
 011400180c0433c7253701534725300152f725306152f7253001534725370153c7250c0433c7253701534725300152f725306152f7253001534725370153c7250000000000000000000000000000000000000000
-011400002e115287052b0052f705340053770530605287052900530705370053c7050c003287052900530705370053c70530605287052900530705370053c7050000000000000000000000000000000000000000
-01140000221150a1052b0052f7050a10537705306050a4062900530705370053c7050c0032f7053000534705370053c705306052b7052d00532705370053b7051610500000000000a10500000000000000000000
-000f00001641016410164101641000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+011400180c043287252b0152f725340153772530615287252901530725370153c7250c043287252901530725370153c72530615287252901530725370153c7250000000000000000000000000000000000000000
+011400180c003287052b0052f705340053770530605287052900530705370053c7050c0032f7053000534705370053c705306052b7052d00532705370053b7050000000000000000000000000000000000000000
+000f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __music__
 00 00014344
 00 00014344
