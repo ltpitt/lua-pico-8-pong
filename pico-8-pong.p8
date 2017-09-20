@@ -12,7 +12,7 @@ __lua__
 -- variables
 --
 
--- colors
+-- colors (yes, i did this)
 colors={
  black=0,
  darkblue=1,
@@ -85,8 +85,6 @@ ball={
           ball.y_speed = ball.pause_y_speed
          end
 }
-
-
 
 -- intro_cursor variables
 intro_cursor ={
@@ -362,16 +360,20 @@ function update_pad(pad)
  end
  -- move pad if player is not computer
  if pad.computer==false then
- -- check if pad goes out of the upper part of the screen
+ -- move pad up
   if button_up and pad.y > game.upper_bound then
    pad.y-=pad.speed
-  elseif button_up and pad.y <= game.upper_bound then
-   pad.y=game.upper_bound
   end
- -- check if paddle goes out of the bottom parte of the screen
+-- move pad down
   if button_down and pad.y + pad.h < game.lower_bound then
    pad.y+=pad.speed
-  elseif button_down and pad.y + pad.h > game.lower_bound then
+  end
+-- check if pad goes out of the upper part of the screen
+  if pad.y <= game.upper_bound then
+   pad.y=game.upper_bound
+  end
+-- check if paddle goes out of the bottom part of the screen
+  if pad.y + pad.h >= game.lower_bound then
    pad.y=game.lower_bound - pad.h
   end
  else
@@ -380,20 +382,24 @@ function update_pad(pad)
   if (ball.x < 44 and pad.x == 0) or (ball.x > 84 and pad.x > 64) then
   -- move only if the ball is coming in your direction
    if ((pad.x==0) and (ball.x_speed<0)) or ((pad.x>0) and (ball.x_speed>0)) then
-    -- go up if your pad center is lower than the ball y coordinate
+    -- if your pad center is lower than the ball y coordinate
     if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
-    -- check if paddle goes out of the screen and, if so fix the issue
+     -- move pad up
      if pad.y + pad.h < game.lower_bound then
       pad.y+=pad.speed
-     elseif pad.y + pad.h > game.lower_bound then
+     end
+     -- check if pad goes out of the lower part of the screen
+     if pad.y + pad.h > game.lower_bound then
       pad.y=game.lower_bound - pad.h
      end
-    -- go down if your pad center is lower than the ball y coordinate
+    -- if your pad center is lower than the ball y coordinate
     elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
-    -- check if paddle goes out of the screen and, if so fix the issue
+    -- move pad down
      if pad.y > game.upper_bound then
       pad.y-=pad.speed
-     elseif pad.y <= game.upper_bound then
+     end
+     -- check if pad goes out of the upper part of the screen
+     if pad.y < game.upper_bound then
       pad.y=game.upper_bound
      end
     end
