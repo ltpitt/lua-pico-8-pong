@@ -362,11 +362,11 @@ function update_pad(pad)
  if pad.computer==false then
  -- move pad up
   if button_up and pad.y > game.upper_bound then
-   pad.y-=pad.speed
+   pad.y=(pad.y+128-pad.speed)%128
   end
 -- move pad down
   if button_down and pad.y + pad.h < game.lower_bound then
-   pad.y+=pad.speed
+   pad.y=(pad.y+128+pad.speed)%128
   end
 -- check if pad goes out of the upper part of the screen
   if pad.y <= game.upper_bound then
@@ -386,7 +386,7 @@ function update_pad(pad)
     if (ball.y > pad.y + pad.h / 2) and (pad.y + pad.h < 128) then
      -- move pad up
      if pad.y + pad.h < game.lower_bound then
-      pad.y+=pad.speed
+      pad.y=(pad.y+128+pad.speed)%128
      end
      -- check if pad goes out of the lower part of the screen
      if pad.y + pad.h > game.lower_bound then
@@ -396,7 +396,7 @@ function update_pad(pad)
     elseif (ball.y < pad.y + pad.h / 2) and (pad.y > 0) then
     -- move pad down
      if pad.y > game.upper_bound then
-      pad.y-=pad.speed
+      pad.y=(pad.y+128-pad.speed)%128
      end
      -- check if pad goes out of the upper part of the screen
      if pad.y < game.upper_bound then
