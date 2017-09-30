@@ -72,28 +72,18 @@ ball={
  sprite=0,
  pause_x_speed=0,
  pause_y_speed=0,
- pause = function()
-          ball.pause_x_speed = ball.x_speed
-          ball.pause_y_speed = ball.y_speed
+ pause=function()
+          ball.pause_x_speed=ball.x_speed
+          ball.pause_y_speed=ball.y_speed
          end,
- stop = function()
-          ball.x_speed = 0
-          ball.y_speed = 0
+ stop=function()
+          ball.x_speed=0
+          ball.y_speed=0
          end,
- start = function()
-          ball.x_speed = ball.pause_x_speed
-          ball.y_speed = ball.pause_y_speed
+ start=function()
+          ball.x_speed=ball.pause_x_speed
+          ball.y_speed=ball.pause_y_speed
          end
-}
-
--- intro_cursor variables
-intro_cursor ={
- sprite=1,
- x=15,
- y=59,
- y_1st_option=59,
- y_2nd_option=69,
- y_3rd_option=79
 }
 
 -- game variables
@@ -101,64 +91,80 @@ game={
  debug=false,
  timer=0,
  timer_set=false,
- state="intro",
+ state="menu",
  winning_score=11,
  timer=0,
  interval=300,
  bg_color=colors.darkgreen,
  lines_color=colors.pink,
  theme="modern",
- menu_state="main",
- option_options = "options",
- option_player_1 = "player 1 - human",
- option_player_2 = "player 2 - computer",
- option_start = "start",
- option_theme = "theme    - modern",
- countdown_text = 3,
- countdown_over = false,
- upper_bound = 2,
- lower_bound = 125
+ menu ={
+  x=64,
+  y=64,
+  state="main",
+  option_text={
+   difficulty="difficulty - normal",
+   options="options",
+   player_1="player 1   - human",
+   player_2="player 2   - computer",
+   start="start",
+   theme="theme      - modern"
+  },
+  cursor={
+   sprite=1,
+   x=15,
+   y=62,
+   y_1st_option=62,
+   y_2nd_option=62+10,
+   y_3rd_option=62+20,
+   y_4th_option=62+30
+  }
+ },
+ countdown_text=3,
+ countdown_over=false,
+ upper_bound=2,
+ lower_bound=125
 }
 
 --
 -- helper functions
 --
 
-function are_colliding(entity_a,entity_b) -- are entities hitting each others boundary and not the same type?
+function are_colliding(entity_a,entity_b)
  return entity_b.x < entity_a.x + entity_a.w and entity_a.x < entity_b.x + entity_b.w
  and entity_b.y < entity_a.y + entity_a.h and entity_a.y < entity_b.y + entity_b.h
 end
 
 -- start timers code
-local timers = {}
-local last_time = nil
+local timers={}
+local last_time=nil
 function init_timers ()
- last_time = time()
+ last_time=time()
 end
 
 function add_timer (name,
     length, step_fn, end_fn,
     start_paused)
-  local timer = {
+  local timer={
     length=length,
     elapsed=0,
     active=not start_paused,
     step_fn=step_fn,
     end_fn=end_fn
   }
-  timers[name] = timer
+  timers[name]=timer
   return timer
 end
 
 function update_timers ()
-  local t = time()
-  local dt = t - last_time
-  last_time = t
+  local t=time()
+  local dt=t - last_time
+  last_time=t
   for name,timer in pairs(timers) do
     if timer.active then
       timer.elapsed += dt
-      local elapsed = timer.elapsed
-      local length = timer.length
+      local elapsed=timer.elapsed
+      local length=timer.length
       if elapsed < length then
         if timer.step_fn then
           timer.step_fn(dt,elapsed,length,timer)
@@ -167,27 +173,27 @@ function update_timers ()
         if timer.end_fn then
           timer.end_fn(dt,elapsed,length,timer)
         end
-        timer.active = false
+        timer.active=false
       end
     end
   end
 end
 
 function pause_timer (name)
-  local timer = timers[name]
-  if (timer) timer.active = false
+  local timer=timers[name]
+  if (timer) timer.active=false
 end
 
 function resume_timer (name)
-  local timer = timers[name]
-  if (timer) timer.active = true
+  local timer=timers[name]
+  if (timer) timer.active=true
 end
 
 function restart_timer (name, start_paused)
-  local timer = timers[name]
+  local timer=timers[name]
   if (not timer) return
-  timer.elapsed = 0
-  timer.active = not start_paused
+  timer.elapsed=0
+  timer.active=not start_paused
 end
 
 -- end timers code
@@ -231,18 +237,18 @@ end
 function _init()
  init_timers()
  -- timer variable
- local last_int = 0
+ local last_int=0
  -- start timer
- game_timer = add_timer(
+ game_timer=add_timer(
   "spawn",
   3,
   function (dt,elapsed,length)
     game.countdown_over=false
-    local i = flr(elapsed)
+    local i=flr(elapsed)
     if i > last_int then
-      last_int = i
+      last_int=i
     end
-    game.countdown_text = -flr(elapsed - 3)
+    game.countdown_text=-flr(elapsed - 3)
   end,
   function ()
    spawn_ball(ball.spawn_direction)
@@ -335,12 +341,23 @@ end
 -- checking and updating game state
 function update_game_state()
  is_pressed=false
+ if btnp(4,0) then
+  game.menu.cursor.y = game.menu.cursor.y_1st_option
+  game.menu.state="main"
+ end
  if btnp(5, 0) and not is_pressed then
-  if game.state=="intro" then
-   new_game()
+  if game.state=="menu" then
+   if game.menu.cursor.y == game.menu.cursor.y_1st_option and
+   game.menu.state=="main" then
+    new_game()
+   elseif game.menu.cursor.y == game.menu.cursor.y_2nd_option and
+   game.menu.state=="main" then
+    game.menu.cursor.y = game.menu.cursor.y_1st_option
+    game.menu.state="options"
+   end
   elseif game.state=="over" then
    stop_music()
-   game.state="intro"
+   game.state="menu"
   elseif game.state=="running" then
    game.state="pause"
   elseif game.state=="pause" then
@@ -500,10 +517,10 @@ function update_score()
 end
 
 function _draw()
- if game.state=="intro" then
+ if game.state=="menu" then
   pad1.winner=false
   pad2.winner=false
-  draw_intro()
+  draw_menu()
  elseif game.state=="running" then
   draw_game()
  elseif game.state=="over" then
@@ -514,70 +531,84 @@ function _draw()
  end
 end
 
-function draw_intro()
+function draw_menu()
   start_music(18)
   ball.x_speed=0
   ball.y_speed=0
-  game.timer = (game.timer + 1) % 32
-  blink_frame = (game.timer == 0)
+  game.timer=(game.timer + 1) % 32
+  blink_frame=(game.timer == 0)
   rectfill(0,0, 128,128, game.bg_color)
   spr(80,16,10,15,2)
 
-  if game.menu_state=="main" then
-   print(game.option_start, 30, 60, colors.red)
-   print(game.option_options, 30, 70, colors.red)
+  -- davide game.menu.state="options"
+
+  if game.menu.state=="main" then
+   print(game.menu.option_text.start, 30, game.menu.y, colors.pink)
+   print(game.menu.option_text.options, 30, game.menu.y+10, colors.pink)
   end
 
-  if game.menu_state=="options" then
+  if game.menu.state=="options" then
+   print(game.menu.option_text.player_1, 30, game.menu.y, colors.pink)
+   print(game.menu.option_text.player_2, 30, game.menu.y+10, colors.pink)
+   print(game.menu.option_text.difficulty, 30, game.menu.y+20, colors.pink)
+   print(game.menu.option_text.theme, 30, game.menu.y+30, colors.pink)
   end
 
   --write_ol("a pipiₚsoft game", 50, 118, colors.pink, colors.black)
-
-  spr(intro_cursor.sprite, intro_cursor.x, intro_cursor.y)
+  spr(game.menu.cursor.sprite, game.menu.cursor.x, game.menu.cursor.y)
   if btnp(2,0) then
-   move_intro_cursor("up")
+   move_menu_cursor("up")
   end
   if btnp(3,0) then
-   move_intro_cursor("down")
+   move_menu_cursor("down")
   end
   if btnp(0,0) then
-   move_intro_cursor("left")
+   move_menu_cursor("left")
   end
   if btnp(1,0) then
-   move_intro_cursor("right")
+   move_menu_cursor("right")
   end
 end
 
-function move_intro_cursor(direction)
+function move_menu_cursor(direction)
+
  if direction=="up" then
-  if intro_cursor.y == intro_cursor.y_2nd_option then
-   intro_cursor.y = intro_cursor.y_1st_option
-  elseif intro_cursor.y == intro_cursor.y_3rd_option then
-   intro_cursor.y = intro_cursor.y_2nd_option
+  if game.menu.cursor.y == game.menu.cursor.y_4th_option then
+   game.menu.cursor.y=game.menu.cursor.y_3rd_option
+  elseif game.menu.cursor.y == game.menu.cursor.y_3rd_option then
+   game.menu.cursor.y=game.menu.cursor.y_2nd_option
+  elseif game.menu.cursor.y == game.menu.cursor.y_2nd_option then
+    game.menu.cursor.y=game.menu.cursor.y_1st_option
   end
  end
 
  if direction=="down" then
-  if intro_cursor.y == intro_cursor.y_1st_option then
-   intro_cursor.y = intro_cursor.y_2nd_option
-  elseif intro_cursor.y == intro_cursor.y_2nd_option then
-   intro_cursor.y = intro_cursor.y_3rd_option
+  if game.menu.cursor.y == game.menu.cursor.y_1st_option then
+   game.menu.cursor.y=game.menu.cursor.y_2nd_option
+  elseif game.menu.cursor.y == game.menu.cursor.y_2nd_option then
+   if game.menu.state=="options" then
+    game.menu.cursor.y=game.menu.cursor.y_3rd_option
+   end
+  elseif game.menu.cursor.y == game.menu.cursor.y_3rd_option then
+   if game.menu.state=="options" then
+    game.menu.cursor.y=game.menu.cursor.y_4th_option
+   end
   end
  end
 
  if direction=="left" then
-  if intro_cursor.y == intro_cursor.y_1st_option then
+  if game.menu.cursor.y == game.menu.cursor.y_1st_option then
   -- and we are on player 1 option we change it to human
-   game.option_player_1 = "player 1 - human"
+   game.option_player_1="player 1 - human"
     pad1.computer=false
   end
-  if intro_cursor.y == intro_cursor.y_2nd_option then
+  if game.menu.cursor.y == game.menu.cursor.y_2nd_option then
   -- or, if player 2 option is selected we change it to human
-   game.option_player_2 = "player 2 - human"
+   game.option_player_2="player 2 - human"
    pad2.computer=false
   end
-  if intro_cursor.y == intro_cursor.y_3rd_option then
-   game.option_theme = "theme    - classic"
+  if game.menu.cursor.y == game.menu.cursor.y_3rd_option then
+   game.option_theme="theme    - classic"
    game.bg_color=colors.black
    game.theme="classic"
   end
@@ -585,18 +616,18 @@ function move_intro_cursor(direction)
 
  if direction=="right" then
   -- if player 1 presses right
-  if intro_cursor.y == intro_cursor.y_1st_option then
+  if game.menu.cursor.y == game.menu.cursor.y_1st_option then
    -- and we are on player 1 option we change it to computer
-   game.option_player_1 = "player 1 - computer"
+   game.option_player_1="player 1 - computer"
    pad1.computer=true
   end
   -- or, if player 2 option is selected we change it to computer
-  if intro_cursor.y == intro_cursor.y_2nd_option then
-   game.option_player_2 = "player 2 - computer"
+  if game.menu.cursor.y == game.menu.cursor.y_2nd_option then
+   game.option_player_2="player 2 - computer"
    pad2.computer=true
   end
-  if intro_cursor.y == intro_cursor.y_3rd_option then
-   game.option_theme = "theme    - modern"
+  if game.menu.cursor.y == game.menu.cursor.y_3rd_option then
+   game.option_theme="theme    - modern"
    game.bg_color=colors.darkgreen
    game.theme="modern"
   end
@@ -664,21 +695,21 @@ end
 -- show gameover
 function draw_gameover()
   start_music(24)
-  ball.y = 64
-  ball.x = 640
-  ball.yspeeed = 0
-  ball.x_speed = 0
+  ball.y=64
+  ball.x=640
+  ball.yspeeed=0
+  ball.x_speed=0
   -- customize colors according to theme
   if game.theme=="modern" then
-   box_line_color = colors.orange
-   box_inner_color = colors.brown
-   box_text_outer_color = colors.darkgreen
-   box_text_inner_color = colors.pink
+   box_line_color=colors.orange
+   box_inner_color=colors.brown
+   box_text_outer_color=colors.darkgreen
+   box_text_inner_color=colors.pink
   elseif game.theme=="classic" then
-   box_line_color = colors.pink
-   box_inner_color = colors.black
-   box_text_outer_color = colors.red
-   box_text_inner_color = colors.pink
+   box_line_color=colors.pink
+   box_inner_color=colors.black
+   box_text_outer_color=colors.red
+   box_text_inner_color=colors.pink
   end
   -- draw the win message
   rectfill(29,59, 96,73, box_line_color)
@@ -697,13 +728,13 @@ function draw_pause()
   -- draw the pause message
   -- customize colors according to theme
   if game.theme=="modern" then
-   box_line_color = colors.orange
-   box_inner_color = colors.brown
-   box_text_color = colors.pink
+   box_line_color=colors.orange
+   box_inner_color=colors.brown
+   box_text_color=colors.pink
   elseif game.theme=="classic" then
-   box_line_color = colors.pink
-   box_inner_color = game.bg_color
-   box_text_color = colors.pink
+   box_line_color=colors.pink
+   box_inner_color=game.bg_color
+   box_text_color=colors.pink
   end
   -- draw box line
   rectfill(49,59, 79,73, box_line_color)
