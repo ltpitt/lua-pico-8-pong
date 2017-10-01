@@ -88,7 +88,8 @@ ball={
 
 -- game variables
 game={
- debug=false,
+ difficulty=2,
+ debug=true,
  timer=0,
  timer_set=false,
  state="menu",
@@ -103,12 +104,12 @@ game={
   y=64,
   state="main",
   option_text={
-   difficulty="difficulty - normal",
+   difficulty="difficulty ’’",
    options="options",
-   player_1="player 1   - human",
-   player_2="player 2   - computer",
-   start="start",
-   theme="theme      - modern"
+   player_1=  "player 1   ‰",
+   player_2=  "player 2   Œ",
+   start=" start",
+   theme=     "theme      modern"
   },
   cursor={
    sprite=1,
@@ -130,10 +131,7 @@ game={
 -- helper functions
 --
 
-function are_colliding(entity_a,entity_b)
- return entity_b.x < entity_a.x + entity_a.w and entity_a.x < entity_b.x + entity_b.w
- and entity_b.y < entity_a.y + entity_a.h and entity_a.y < entity_b.y + entity_b.h
-end
+
 
 -- start timers code
 local timers={}
@@ -322,7 +320,7 @@ end
 
 -- update the game
 function _update60()
- debug=are_colliding(ball,pad1)
+ debug="debug mode"
  update_timers()
  game.timer+=1
  update_game_state()
@@ -460,8 +458,13 @@ function update_ball()
  -- bounce the ball off the paddle
  --
  -- bounce paddle 1
+ if game.theme=="classic" then
+  classic_delta=1
+ elseif game.theme=="modern" then
+  classic_delta=-1
+ end
  if ball.y + ball.size >= pad1.y and ball.y - ball.size <= pad1.y + pad1.h then
-  if ball.x - ball.size <= pad1.x + pad1.w + -ball.x_speed then
+  if ball.x - ball.size + classic_delta <= pad1.x + pad1.w + -ball.x_speed then
    if ball.x_speed < 0 then
     ball.x_speed=-(ball.x_speed-0.1)
     ball.y_speed=calculate_angle(pad1)
@@ -484,6 +487,7 @@ function update_ball()
   end
  end
 end
+
 
 -- calculate y angle depending on where the ball hits a paddle
 function calculate_angle(pad)
@@ -540,14 +544,14 @@ function draw_menu()
   rectfill(0,0, 128,128, game.bg_color)
   spr(80,16,10,15,2)
 
-  -- davide game.menu.state="options"
-
   if game.menu.state=="main" then
-   print(game.menu.option_text.start, 30, game.menu.y, colors.pink)
-   print(game.menu.option_text.options, 30, game.menu.y+10, colors.pink)
+   game.menu.cursor.x=35
+   print(game.menu.option_text.start, 50, game.menu.y, colors.pink)
+   print(game.menu.option_text.options, 50, game.menu.y+10, colors.pink)
   end
 
   if game.menu.state=="options" then
+   game.menu.cursor.x=15
    print(game.menu.option_text.player_1, 30, game.menu.y, colors.pink)
    print(game.menu.option_text.player_2, 30, game.menu.y+10, colors.pink)
    print(game.menu.option_text.difficulty, 30, game.menu.y+20, colors.pink)
@@ -596,41 +600,56 @@ function move_menu_cursor(direction)
   end
  end
 
- if direction=="left" then
-  if game.menu.cursor.y == game.menu.cursor.y_1st_option then
-  -- and we are on player 1 option we change it to human
-   game.option_player_1="player 1 - human"
-    pad1.computer=false
+ if game.menu.state=="options" then
+  if direction=="left" then
+    if game.menu.cursor.y == game.menu.cursor.y_1st_option then
+      game.menu.option_text.player_1="player 1   ‰"
+      pad1.computer=false
+    end
+    if game.menu.cursor.y == game.menu.cursor.y_2nd_option then
+     game.menu.option_text.player_2="player 2   ‰"
+     pad2.computer=false
+    end
+    if game.menu.cursor.y == game.menu.cursor.y_3rd_option then
+     if game.difficulty == 3 then
+      game.menu.option_text.difficulty="difficulty ’’"
+      game.difficulty=2
+     elseif game.difficulty == 2 then
+      game.menu.option_text.difficulty="difficulty ’"
+      game.difficulty=1
+     end
+    end
+    if game.menu.cursor.y == game.menu.cursor.y_4th_option then
+     game.menu.option_text.theme="theme      classic"
+     --game.bg_color=colors.black
+     game.theme="classic"
+    end
+   end
   end
-  if game.menu.cursor.y == game.menu.cursor.y_2nd_option then
-  -- or, if player 2 option is selected we change it to human
-   game.option_player_2="player 2 - human"
-   pad2.computer=false
-  end
-  if game.menu.cursor.y == game.menu.cursor.y_3rd_option then
-   game.option_theme="theme    - classic"
-   game.bg_color=colors.black
-   game.theme="classic"
-  end
- end
 
- if direction=="right" then
-  -- if player 1 presses right
-  if game.menu.cursor.y == game.menu.cursor.y_1st_option then
-   -- and we are on player 1 option we change it to computer
-   game.option_player_1="player 1 - computer"
-   pad1.computer=true
-  end
-  -- or, if player 2 option is selected we change it to computer
-  if game.menu.cursor.y == game.menu.cursor.y_2nd_option then
-   game.option_player_2="player 2 - computer"
-   pad2.computer=true
-  end
-  if game.menu.cursor.y == game.menu.cursor.y_3rd_option then
-   game.option_theme="theme    - modern"
-   game.bg_color=colors.darkgreen
-   game.theme="modern"
-  end
+  if direction=="right" then
+   if game.menu.cursor.y == game.menu.cursor.y_1st_option then
+    game.menu.option_text.player_1="player 1   Œ"
+    pad1.computer=true
+   end
+   if game.menu.cursor.y == game.menu.cursor.y_2nd_option then
+    game.menu.option_text.player_2="player 2   Œ"
+    pad2.computer=true
+   end
+   if game.menu.cursor.y == game.menu.cursor.y_4th_option then
+    game.menu.option_text.theme="theme      modern"
+    --game.bg_color=colors.darkgreen
+    game.theme="modern"
+   end
+   if game.menu.cursor.y == game.menu.cursor.y_3rd_option then
+    if game.difficulty == 1 then
+     game.menu.option_text.difficulty="difficulty ’’"
+     game.difficulty=2
+    elseif game.difficulty == 2 then
+     game.menu.option_text.difficulty="difficulty ’’’"
+     game.difficulty=3
+    end
+   end
  end
 end
 
