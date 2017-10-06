@@ -10,12 +10,19 @@ A Pong implementation for the lovely [PICO-8 Fantasy Console](http://www.lexalof
 * Enter the command: run
 * Enjoy!
 
-If you want to test the game in your browser:  
-http://www.davidenastri.it/pong
+If you want to test the game in your browser:
+* On my [website](http://www.davidenastri.it/pong "Davide Nastri - Personal website")
+* On my Itch [page](https://ltpitt.itch.io/pong-ino "Pong-ino Itch page")
+
+If you're on mobile you can try the game:
+* On Lexaoffle [forum](https://www.lexaloffle.com/bbs/?tid=29815 "Pong-ino Lexaoffle Forum page")
+
+If you're curious about Dev details:
+* Pong-ino's [Devlog](https://ltpitt.itch.io/pong-ino/devlog/7327/yey-i-finished-my-1st-game "Pong-ino Itch Devlog") on Itch
 
 ### Special Thanks for the awesome music ###
 
-Intro Music and Game Over Music are thanks to Gruber's talent:  
+Intro Music and Game Over Music are thanks to Gruber's talent:
 https://twitter.com/gruber_music
 
 ### Contribution guidelines ###
