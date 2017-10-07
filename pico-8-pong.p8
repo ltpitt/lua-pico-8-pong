@@ -100,6 +100,7 @@ game={
  lines_color=colors.pink,
  theme="modern",
  menu ={
+  --davide
   x=54,
   y=100,
   state="main",
@@ -352,6 +353,7 @@ end
 function update_game_state()
  is_pressed=false
  if btnp(4,0) then
+  --davide
   game.menu.x=54
   game.menu.y=100
   game.menu.cursor.x=game.menu.x-12
@@ -368,7 +370,6 @@ function update_game_state()
     new_game()
    elseif game.menu.cursor.y == game.menu.cursor.y_2nd_option and
    game.menu.state=="main" then
-    --cambio
     game.menu.x=46
     game.menu.y=51
     game.menu.cursor.x=game.menu.x-10
@@ -530,7 +531,6 @@ function calculate_angle(pad)
  return angle
 end
 
--- update score
 function update_score()
  if ball.x<pad1.x then
   pad2.score += 1
@@ -574,22 +574,24 @@ function draw_menu()
   ball.y_speed=0
   game.timer=(game.timer + 1) % 32
   blink_frame=(game.timer == 0)
-  -- background
+  -- draw background
   rectfill(0,0, 128,128, colors.darkgreen)
-  -- game title
+  -- draw game title
   spr(16,16,10,15,2)
-
   if game.menu.state=="main" then
-  -- draw pongman
+   -- draw pongman
    palt(0, false)
    spr(75,38,42,5,6)
    palt(0,true)
+   -- draw start
    print(game.menu.option_text.start, game.menu.x, game.menu.y, colors.pink)
+   -- draw options
    print(game.menu.option_text.options, game.menu.x, game.menu.y+7, colors.pink)
   end
 
   if game.menu.state=="options" then
-   spr(64,33,30,15,12)
+   -- draw menu paddle
+   spr(64,33,30,10,12)
    print(game.menu.option_text.player_1, game.menu.x, game.menu.y, colors.pink)
    print(game.menu.option_text.player_2, game.menu.x, game.menu.y+7, colors.pink)
    print(game.menu.option_text.difficulty, game.menu.x, game.menu.y+14, colors.pink)
@@ -715,13 +717,7 @@ function draw_game()
   line(0,126,128,126,colors.orange)
  else if game.theme== "classic" then
   -- draw the central line, zebra style
-  line(64, 0, 64, 10, colors.pink)
-  line(64, 20, 64, 30, colors.pink)
-  line(64, 40, 64, 50, colors.pink)
-  line(64, 60, 64, 70, colors.pink)
-  line(64, 80, 64, 90, colors.pink)
-  line(64, 100, 64, 110, colors.pink)
-  line(64, 120, 64, 130, colors.pink)
+  draw_net(63,126,2,4,40,colors.pink)
  end
  end
  -- draw the 1st paddle
@@ -756,7 +752,6 @@ function draw_game()
  end
 end
 
--- show gameover
 function draw_gameover()
   start_music(24)
   ball.y=64
@@ -785,11 +780,9 @@ function draw_gameover()
   end
 end
 
--- pause
 function draw_pause()
  if game.state=="pause" then
   draw_game()
-  -- draw the pause message
   -- customize colors according to theme
   if game.theme=="modern" then
    box_line_color=colors.orange
@@ -800,6 +793,7 @@ function draw_pause()
    box_inner_color=game.bg_color
    box_text_color=colors.pink
   end
+  -- draw the pause message
   -- draw box line
   rectfill(49,59, 79,73, box_line_color)
   -- draw box color
