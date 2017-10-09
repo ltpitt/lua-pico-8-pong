@@ -1,5 +1,0 @@
-Player 1   - Human  (Human, CPU)
-Player 2   - Cpu    (Human, CPU)
-Difficulty - Normal (Easy, Normal, Hard, Holy sh*t)
-Theme      - Modern (Classic, Modern)
-
