@@ -20,10 +20,13 @@ If you're on mobile you can try the game:
 If you're curious about Dev details:
 * Pong-ino's [Devlog](https://ltpitt.itch.io/pong-ino/devlog/7327/yey-i-finished-my-1st-game "Pong-ino Itch Devlog") on Itch
 
-### Special Thanks for the awesome music ###
+### Special Thanks ###
 
 Intro Music and Game Over Music are thanks to Gruber's talent:
 https://twitter.com/gruber_music
+
+The amazing Pongman in the intro is thanks to Ryno Jellies' pixel art magic:
+https://twitter.com/RynoJellies/status/913719777880715265/photo/1
 
 ### Contribution guidelines ###
 
