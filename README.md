@@ -17,8 +17,6 @@ If you want to test the game in your browser:
 If you're on mobile you can try the game here:
 * On Lexaoffle [forum](https://www.lexaloffle.com/bbs/?tid=29815 "Pong-ino Lexaoffle Forum page")
 
-<iframe frameborder="0" src="https://itch.io/embed/167383" width="552" height="167"><a href="https://ltpitt.itch.io/pong-ino">Pong-ino by ltpitt</a></iframe>
-
 If you're curious about Dev details:
 * Pong-ino's [Devlog](https://ltpitt.itch.io/pong-ino/devlog/7327/yey-i-finished-my-1st-game "Pong-ino Itch Devlog") on Itch
 
